@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b23340d9b453ca740945f54769125bb1, type: 3}
   m_Name: TestConfig
   m_EditorClassIdentifier: 
-  number: 0
+  number: -13
   value: 0
   text: Hello World!
   flag: 0
-  position: {x: 0, y: 0, z: 12}
+  position: {x: -3.8, y: 0, z: 12}
   rotation: {x: 0, y: 0, z: 0, w: 1}
-  color: {r: 0.34117648, g: 0.5411765, b: 0.6509804, a: 1}
+  color: {r: 0, g: 0.09500832, b: 0.14716971, a: 1}
   gameObject: {fileID: 0}
   transform: {fileID: 0}
   material: {fileID: 0}

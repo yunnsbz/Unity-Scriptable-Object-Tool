@@ -6,10 +6,14 @@ using System.Linq;
 
 public class ScriptableObjectEditorWindow : EditorWindow
 {
-
+    // layout:
     private float PropertyMinWidth = 40;
+    private float PropertySpace = 4;
     private Vector2 ScrollPos = new Vector2();
+    private GUILayoutOption[] GUIL_StandartOptions = new GUILayoutOption[] { GUILayout.MinWidth(100), GUILayout.ExpandWidth(true) };
+    private GUILayoutOption[] GUIL_DefaultOptions = new GUILayoutOption[] { GUILayout.MinWidth(150), GUILayout.ExpandWidth(true) };
 
+    // data:
     private List<List<ScriptableObject>> groupedConfigs; // Her sýnýf türü için iç içe liste
     private List<Type> selectedTypes = new List<Type>(); // Seçilen ScriptableObject tipleri
     private List<Type> availableTypes = new List<Type>(); // Kullanýlabilir ScriptableObject tipleri
@@ -111,13 +115,16 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 SerializedObject serializedObject = new SerializedObject(Configs[0]);
                 SerializedProperty property = serializedObject.GetIterator();
 
-                while (property.NextVisible(true))
+                bool ShouldNext = property.NextVisible(true);
+                while (ShouldNext)
                 {
                     if (property.propertyType != SerializedPropertyType.ArraySize && property.name != "m_Script" && property.name != "data") // m_Script'i atla
                     {
                         // Deðiþken ismini yazdýr
                         EditorGUILayout.LabelField(property.name, GUILayout.MinWidth(PropertyMinWidth));
+                        GUILayout.Space(PropertySpace);
                     }
+                    ShouldNext = property.NextVisible(false); // to not include childrens
                 }
             }
             catch
@@ -143,41 +150,45 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     SerializedProperty property = serializedObject.GetIterator();
 
                     // Tüm deðiþken isimlerini yazdýr ve uygun alanlarý oluþtur
-                    while (property.NextVisible(true))
+                    bool ShouldNext = property.NextVisible(true);
+                    while (ShouldNext)
                     {
                         if (property.propertyType != SerializedPropertyType.ArraySize && property.name != "m_Script" && property.name != "data") // m_Script'i atla
                         {
                             // Deðiþkenin türüne göre uygun alaný oluþtur
                             switch (property.propertyType)
                             {
+                                
                                 case SerializedPropertyType.String:
-                                    // Deðiþken adý ile ilgili bir kopya oluþtur
-                                    string oldStringValue = property.stringValue;
-                                    property.stringValue = EditorGUILayout.TextField(oldStringValue, GUILayout.Width(100), GUILayout.ExpandWidth(true));
-                                    break;
+                                // Deðiþken adý ile ilgili bir kopya oluþtur
+                                string oldStringValue = property.stringValue;
+                                property.stringValue = EditorGUILayout.TextField(oldStringValue, GUIL_StandartOptions);
+                                break;
                                 case SerializedPropertyType.Integer:
                                     int oldIntValue = property.intValue;
-                                    property.intValue = EditorGUILayout.IntField(oldIntValue, GUILayout.Width(100), GUILayout.ExpandWidth(true));
+                                    property.intValue = EditorGUILayout.IntField(oldIntValue, GUIL_StandartOptions);
                                     break;
                                 case SerializedPropertyType.Float:
                                     float oldFloatValue = property.floatValue;
-                                    property.floatValue = EditorGUILayout.FloatField(oldFloatValue, GUILayout.Width(100), GUILayout.ExpandWidth(true));
+                                    property.floatValue = EditorGUILayout.FloatField(oldFloatValue, GUIL_StandartOptions);
                                     break;
                                 case SerializedPropertyType.Boolean:
                                     bool oldBoolValue = property.boolValue;
-                                    property.boolValue = EditorGUILayout.Toggle(oldBoolValue, GUILayout.Width(100), GUILayout.ExpandWidth(true));
+                                    property.boolValue = EditorGUILayout.Toggle(oldBoolValue, GUIL_StandartOptions);
                                     break;
                                 case SerializedPropertyType.Enum:
-                                    property.intValue = EditorGUILayout.Popup(property.enumValueIndex, property.enumNames, GUILayout.Width(100), GUILayout.ExpandWidth(true));
+                                    property.intValue = EditorGUILayout.Popup(property.enumValueIndex, property.enumNames, GUIL_StandartOptions);
                                     break;
                                 default:
-                                    EditorGUILayout.PropertyField(property, GUIContent.none, GUILayout.Width(200), GUILayout.ExpandWidth(true));
+                                    EditorGUILayout.PropertyField(property, GUIContent.none, true, GUIL_DefaultOptions);
                                     break;
-
                                     // Diðer türler için gerekli alanlarý buraya ekleyebilirsin
+
                             }
+                            GUILayout.Space(PropertySpace);
                             serializedObject.ApplyModifiedProperties();
                         }
+                        ShouldNext = property.NextVisible(false); // to not include childrens
                     }
                     property.Reset();
                     // Deðiþiklikleri kaydet
