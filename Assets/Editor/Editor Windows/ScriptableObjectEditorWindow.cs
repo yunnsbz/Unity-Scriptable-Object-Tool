@@ -105,7 +105,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
             EditorGUILayout.BeginVertical("box");
             try
             {
-                EditorGUILayout.LabelField("", GUILayout.MinWidth(PropertyMinWidth));// dosya isimleri satýrý için burasý boþ olmalý
+                EditorGUILayout.LabelField("", GUILayout.MinWidth(PropertyMinWidth));// to show file names properly this should have an empty label
 
                 // SerializedObject ve SerializedProperty kullan
                 SerializedObject serializedObject = new SerializedObject(Configs[0]);
@@ -153,25 +153,25 @@ public class ScriptableObjectEditorWindow : EditorWindow
                                 case SerializedPropertyType.String:
                                     // Deðiþken adý ile ilgili bir kopya oluþtur
                                     string oldStringValue = property.stringValue;
-                                    property.stringValue = EditorGUILayout.TextField(oldStringValue);
+                                    property.stringValue = EditorGUILayout.TextField(oldStringValue, GUILayout.Width(100), GUILayout.ExpandWidth(true));
                                     break;
                                 case SerializedPropertyType.Integer:
                                     int oldIntValue = property.intValue;
-                                    property.intValue = EditorGUILayout.IntField(oldIntValue);
+                                    property.intValue = EditorGUILayout.IntField(oldIntValue, GUILayout.Width(100), GUILayout.ExpandWidth(true));
                                     break;
                                 case SerializedPropertyType.Float:
                                     float oldFloatValue = property.floatValue;
-                                    property.floatValue = EditorGUILayout.FloatField(oldFloatValue);
+                                    property.floatValue = EditorGUILayout.FloatField(oldFloatValue, GUILayout.Width(100), GUILayout.ExpandWidth(true));
                                     break;
                                 case SerializedPropertyType.Boolean:
                                     bool oldBoolValue = property.boolValue;
-                                    property.boolValue = EditorGUILayout.Toggle(oldBoolValue);
+                                    property.boolValue = EditorGUILayout.Toggle(oldBoolValue, GUILayout.Width(100), GUILayout.ExpandWidth(true));
                                     break;
                                 case SerializedPropertyType.Enum:
-                                    property.intValue = EditorGUILayout.Popup(property.enumValueIndex, property.enumNames);
+                                    property.intValue = EditorGUILayout.Popup(property.enumValueIndex, property.enumNames, GUILayout.Width(100), GUILayout.ExpandWidth(true));
                                     break;
                                 default:
-                                    EditorGUILayout.PropertyField(property, true);
+                                    EditorGUILayout.PropertyField(property, GUIContent.none, GUILayout.Width(200), GUILayout.ExpandWidth(true));
                                     break;
 
                                     // Diðer türler için gerekli alanlarý buraya ekleyebilirsin
