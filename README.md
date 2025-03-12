@@ -8,6 +8,16 @@ A custom Unity Editor tool designed to streamline the process of viewing and edi
 - **Customizable Layout**: Easily switch between viewing configurations and types.
 - **Intuitive Interface**: Built with Unity's Editor API for a seamless integration into your Unity projects.
 
+## Updates
+- Adding and Removing ScriptableObjects
+- Reverting Value Change
+- Advanced Filtering Options
+- Dynamic ScriptableObject Loading: <br/> 
+A functionality to dynamically locate and load ScriptableObjects within the project, removing the dependency on a specific folder structure (e.g., Assets/Resources/ScriptableObjects/).
+
+
+
+
 ## Installation
 1. Copy and paste the script located at ``Assets/Editor/Editor Windows/ScriptableObjectEditorWindow.cs`` into your Unity project's ``Assets/Editor`` folder.
 2. For this version, your ScriptableObjects must be placed in the ``Assets/Resources/ScriptableObjects/`` folder (the program will automatically fetch all ScriptableObjects from this directory).
