@@ -121,9 +121,11 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     {
                         // Show the name of each property as a label
                         EditorGUILayout.LabelField(property.name, GUILayout.MinWidth(PropertyMinWidth));
-                        float height = EditorGUI.GetPropertyHeight(property, GUIContent.none) + PropertySpace;
-                        height -= EditorGUIUtility.singleLineHeight;
-                        GUILayout.Space(height);
+
+                        // if any property is bigger than expected this will calculate extra space needed (ex: array properties can expand)
+                        if (property.isExpanded)
+                            GUILayout.Space(CalculatePropertyHeight(Configs, property) - EditorGUIUtility.singleLineHeight);
+                        GUILayout.Space(PropertySpace);
                     }
                     ShouldNext = property.NextVisible(false); // Move to the next property, skipping nested children
                 }
@@ -180,6 +182,12 @@ public class ScriptableObjectEditorWindow : EditorWindow
                                     break;
                                 default:
                                     EditorGUILayout.PropertyField(property, GUIContent.none, true, GUIL_DefaultOptions);
+                                    if (property.isExpanded)
+                                    {
+                                        float extraSpace = CalculatePropertyHeight(Configs, property);
+                                        extraSpace -= EditorGUI.GetPropertyHeight(property);
+                                        GUILayout.Space(extraSpace);
+                                    }
                                     break;
                                     // Additional cases can be added here to support more property types
                             }
@@ -206,6 +214,26 @@ public class ScriptableObjectEditorWindow : EditorWindow
             GroupScriptableObjectsByType();
         }
     }
+
+    public static float CalculatePropertyHeight<T>(List<T> configs, SerializedProperty property) where T : ScriptableObject
+    {
+        float maxHeight = 0f;
+
+        foreach (var config in configs)
+        {
+            SerializedObject serializedObject = new SerializedObject(config);
+            SerializedProperty targetProperty = serializedObject.FindProperty(property.propertyPath);
+
+            if (targetProperty != null)
+            {
+                float height = EditorGUI.GetPropertyHeight(targetProperty, true);
+                maxHeight = Mathf.Max(maxHeight, height);
+            }
+        }
+
+        return maxHeight;
+    }
+
 }
 
 // Custom Popup Window for Config Type Selection
