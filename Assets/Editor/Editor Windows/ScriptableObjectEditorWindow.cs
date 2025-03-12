@@ -18,6 +18,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
     private List<Type> selectedTypes = new List<Type>(); // Tracks which ScriptableObject types are currently selected for display
     private List<Type> availableTypes = new List<Type>(); // Holds all unique ScriptableObject types found in the project
 
+    // window:
     [MenuItem("Window/Game Config Editor")]
     public static void ShowWindow()
     {
@@ -57,6 +58,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
             GUILayout.Label("No Configs Loaded", EditorStyles.boldLabel);
         }
 
+        // show configs
         ScrollPos = EditorGUILayout.BeginScrollView(ScrollPos);
         if (groupedConfigs.Count != 0)
         {
@@ -75,7 +77,6 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 EditorGUILayout.EndHorizontal();
             }
         }
-        // Close the scrollable area
         EditorGUILayout.EndScrollView();
     }
 
@@ -162,38 +163,12 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     {
                         if (property.propertyType != SerializedPropertyType.ArraySize && property.name != "m_Script" && property.name != "data") // Skip unwanted properties
                         {
-                            // Generate an appropriate UI control based on the property's data type
-                            switch (property.propertyType)
+                            EditorGUILayout.PropertyField(property, GUIContent.none, true, GUIL_DefaultOptions);
+                            if (property.isExpanded)
                             {
-                                case SerializedPropertyType.String:
-                                    string oldStringValue = property.stringValue;
-                                    property.stringValue = EditorGUILayout.TextField(oldStringValue, GUIL_StandartOptions);
-                                    break;
-                                case SerializedPropertyType.Integer:
-                                    int oldIntValue = property.intValue;
-                                    property.intValue = EditorGUILayout.IntField(oldIntValue, GUIL_StandartOptions);
-                                    break;
-                                case SerializedPropertyType.Float:
-                                    float oldFloatValue = property.floatValue;
-                                    property.floatValue = EditorGUILayout.FloatField(oldFloatValue, GUIL_StandartOptions);
-                                    break;
-                                case SerializedPropertyType.Boolean:
-                                    bool oldBoolValue = property.boolValue;
-                                    property.boolValue = EditorGUILayout.Toggle(oldBoolValue, GUIL_StandartOptions);
-                                    break;
-                                case SerializedPropertyType.Enum:
-                                    property.intValue = EditorGUILayout.Popup(property.enumValueIndex, property.enumNames, GUIL_StandartOptions);
-                                    break;
-                                default:
-                                    EditorGUILayout.PropertyField(property, GUIContent.none, true, GUIL_DefaultOptions);
-                                    if (property.isExpanded)
-                                    {
-                                        float extraSpace = CalculatePropertyHeight(Configs, property);
-                                        extraSpace -= EditorGUI.GetPropertyHeight(property);
-                                        GUILayout.Space(extraSpace);
-                                    }
-                                    break;
-                                    // Additional cases can be added here to support more property types
+                                float extraSpace = CalculatePropertyHeight(Configs, property);
+                                extraSpace -= EditorGUI.GetPropertyHeight(property);
+                                GUILayout.Space(extraSpace);
                             }
                             GUILayout.Space(PropertySpace);
                             serializedObject.ApplyModifiedProperties();
