@@ -31,7 +31,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
     private void OnGUI()
     {
-        ScrollPos = EditorGUILayout.BeginScrollView(ScrollPos);
+        
         // Baþlýk kýsmý ve ayarlar menüsü
         EditorGUILayout.BeginHorizontal();
         GUILayout.Label("Game Configuration Editor", EditorStyles.boldLabel);
@@ -52,6 +52,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
         }
         EditorGUILayout.EndHorizontal();
 
+
         // Seçilen tipleri göster
         GUILayout.Label("Selected Config Types: " + (selectedTypes.Count > 0 ? string.Join(", ", selectedTypes.Select(t => t.Name)) : "None"), EditorStyles.miniBoldLabel);
 
@@ -60,6 +61,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
             GUILayout.Label("No Configs Loaded", EditorStyles.boldLabel);
         }
 
+        ScrollPos = EditorGUILayout.BeginScrollView(ScrollPos);
         if (groupedConfigs.Count != 0)
         {
 

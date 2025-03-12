@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   number: -13
   value: 0
-  text: Hello World!
+  text: 
   flag: 0
   position: {x: -3.8, y: 0, z: 12}
   rotation: {x: 0, y: 0, z: 0, w: 1}
-  color: {r: 0, g: 0.09500832, b: 0.14716971, a: 1}
+  color: {r: 0.018718384, g: 0.90188676, b: 0.06520096, a: 1}
   gameObject: {fileID: 0}
   transform: {fileID: 0}
   material: {fileID: 0}
