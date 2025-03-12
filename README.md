@@ -10,7 +10,6 @@ A custom Unity Editor tool designed to streamline the process of viewing and edi
 
 ## Updates
 - Adding and Removing ScriptableObjects
-- Reverting Value Change
 - Advanced Filtering Options
 - Dynamic ScriptableObject Loading: <br/> 
 A functionality to dynamically locate and load ScriptableObjects within the project, removing the dependency on a specific folder structure (e.g., Assets/Resources/ScriptableObjects/).
