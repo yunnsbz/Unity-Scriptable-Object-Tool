@@ -68,6 +68,8 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 if (selectedTypes.Count == 0 || !selectedTypes.Contains(configGroup[0].GetType()))
                     continue;
 
+                GUILayout.Space(15);
+
                 GUILayout.Label(configGroup[0].GetType().Name, EditorStyles.boldLabel); // Display the type name as a section header
 
                 EditorGUILayout.BeginHorizontal("box");
@@ -126,7 +128,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     if (property.propertyType != SerializedPropertyType.ArraySize && property.name != "m_Script" && property.name != "data") // Exclude internal Unity fields and arrays
                     {
                         // Show the name of each property as a label
-                        EditorGUILayout.LabelField(property.name, GUILayout.MinWidth(PropertyMinWidth));
+                        EditorGUILayout.LabelField(property.name, GUIL_StandartOptions);
                         // if any property is bigger than expected this will calculate extra space needed (ex: array properties can expand)
                         if (property.isExpanded)
                             GUILayout.Space(CalculatePropertyHeight(Configs, property) - EditorGUIUtility.singleLineHeight);
