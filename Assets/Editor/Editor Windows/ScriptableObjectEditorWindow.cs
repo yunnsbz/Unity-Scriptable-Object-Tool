@@ -83,9 +83,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
     {
         // Scan the "ScriptableObjects" folder to find all unique ScriptableObject types
         availableTypes = Resources.LoadAll<ScriptableObject>("ScriptableObjects").Select(t => t.GetType()).Distinct().ToList();
-        selectedTypes.Clear();
-
-        selectedTypes.AddRange(availableTypes);
+        selectedTypes.Intersect(availableTypes);
     }
 
     private void GroupScriptableObjectsByType()
