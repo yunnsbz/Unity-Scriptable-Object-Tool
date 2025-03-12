@@ -14,48 +14,44 @@ public class ScriptableObjectEditorWindow : EditorWindow
     private GUILayoutOption[] GUIL_DefaultOptions = new GUILayoutOption[] { GUILayout.MinWidth(150), GUILayout.ExpandWidth(true) };
 
     // data:
-    private List<List<ScriptableObject>> groupedConfigs; // Her sýnýf türü için iç içe liste
-    private List<Type> selectedTypes = new List<Type>(); // Seçilen ScriptableObject tipleri
-    private List<Type> availableTypes = new List<Type>(); // Kullanýlabilir ScriptableObject tipleri
+    private List<List<ScriptableObject>> groupedConfigs; // Stores ScriptableObjects grouped by their class types in nested lists
+    private List<Type> selectedTypes = new List<Type>(); // Tracks which ScriptableObject types are currently selected for display
+    private List<Type> availableTypes = new List<Type>(); // Holds all unique ScriptableObject types found in the project
 
-    [MenuItem("Window/game Config Editor")]
+    [MenuItem("Window/Game Config Editor")]
     public static void ShowWindow()
     {
-        GetWindow<ScriptableObjectEditorWindow>("game Config Editor");
+        GetWindow<ScriptableObjectEditorWindow>("Game Config Editor");
     }
+
     private void OnEnable()
     {
-        LoadAvailableTypes(); // Kullanýlabilir ScriptableObject tiplerini yükle
-        GroupScriptableObjectsByType(); // ScriptableObject'leri tiplerine göre grupla
+        // Initialize the editor by discovering available types and organizing ScriptableObjects accordingly
+        LoadAvailableTypes();
+        GroupScriptableObjectsByType();
     }
 
     private void OnGUI()
     {
-        
-        // Baþlýk kýsmý ve ayarlar menüsü
         EditorGUILayout.BeginHorizontal();
         GUILayout.Label("Game Configuration Editor", EditorStyles.boldLabel);
 
-        // Refresh butonu
         if (GUILayout.Button("Refresh", GUILayout.Width(80)))
         {
             LoadAvailableTypes();
             GroupScriptableObjectsByType();
         }
 
-        // Config tipi seçim menüsü
+        // Display a popup window at the mouse position for type selection
         if (GUILayout.Button("Filter", GUILayout.Width(80)))
         {
             Vector2 mousePosition = Event.current.mousePosition;
-            // Toggle seçeneklerini göstermek için özel Popup aç
             PopupWindow.Show(new Rect(mousePosition.x, mousePosition.y + 20, 0, 0), new ConfigTypeSelectionPopup(selectedTypes, GroupScriptableObjectsByType, availableTypes));
         }
         EditorGUILayout.EndHorizontal();
 
-
-        // Seçilen tipleri göster
+        // Show a summary of currently selected types or indicate none are selected
         GUILayout.Label("Selected Config Types: " + (selectedTypes.Count > 0 ? string.Join(", ", selectedTypes.Select(t => t.Name)) : "None"), EditorStyles.miniBoldLabel);
-
         if (groupedConfigs == null || groupedConfigs.Count == 0)
         {
             GUILayout.Label("No Configs Loaded", EditorStyles.boldLabel);
@@ -64,44 +60,44 @@ public class ScriptableObjectEditorWindow : EditorWindow
         ScrollPos = EditorGUILayout.BeginScrollView(ScrollPos);
         if (groupedConfigs.Count != 0)
         {
-
             foreach (var configGroup in groupedConfigs)
             {
-                // Eðer grup boþsa veya seçilen tiplerle eþleþmiyorsa devam et
+                // Only display groups that match the selected types or if no specific types are filtered
                 if (selectedTypes.Count == 0 || !selectedTypes.Contains(configGroup[0].GetType()))
                     continue;
 
-                GUILayout.Label(configGroup[0].GetType().Name, EditorStyles.boldLabel); // Grup baþlýðý olarak tip ismi göster
+                GUILayout.Label(configGroup[0].GetType().Name, EditorStyles.boldLabel); // Display the type name as a section header
 
                 EditorGUILayout.BeginHorizontal("box");
 
                 PutPropertiesForObject(configGroup);
 
                 EditorGUILayout.EndHorizontal();
-
             }
         }
-        //scrollView sonu
+        // Close the scrollable area
         EditorGUILayout.EndScrollView();
     }
 
     private void LoadAvailableTypes()
     {
+        // Scan the "ScriptableObjects" folder to find all unique ScriptableObject types
         availableTypes = Resources.LoadAll<ScriptableObject>("ScriptableObjects").Select(t => t.GetType()).Distinct().ToList();
         selectedTypes.Clear();
+
         selectedTypes.AddRange(availableTypes);
     }
 
     private void GroupScriptableObjectsByType()
     {
-        // ScriptableObject'leri belirli bir klasörden yükle (örneðin Resources) ve sýnýf türlerine göre gruplandýr
+        // Fetch all ScriptableObjects from a designated folder and organize them into groups based on their class types
         var configs = Resources.LoadAll<ScriptableObject>("").ToList();
 
         groupedConfigs = configs
             .GroupBy(c => c.GetType())
-            .Where(g => selectedTypes.Count == 0 || selectedTypes.Contains(g.Key)) // Seçilen tipleri filtrele
-            .Select(g => g.ToList()) // Her tip için bir alt liste oluþtur
-            .ToList();
+            .Where(g => selectedTypes.Count == 0 || selectedTypes.Contains(g.Key)) // Only include groups matching the current type filter
+            .Select(g => g.ToList()) // Convert each group into a list of ScriptableObjects
+            .ToList(); 
     }
 
     private void PutPropertiesForObject<T>(List<T> Configs) where T : ScriptableObject
@@ -111,26 +107,28 @@ public class ScriptableObjectEditorWindow : EditorWindow
             EditorGUILayout.BeginVertical("box");
             try
             {
-                EditorGUILayout.LabelField("", GUILayout.MinWidth(PropertyMinWidth));// to show file names properly this should have an empty label
+                // An empty label to align property names properly in the UI
+                EditorGUILayout.LabelField("", GUILayout.MinWidth(PropertyMinWidth));
 
-                // SerializedObject ve SerializedProperty kullan
+                // Iterate through the properties of the first ScriptableObject to display their names
                 SerializedObject serializedObject = new SerializedObject(Configs[0]);
                 SerializedProperty property = serializedObject.GetIterator();
 
                 bool ShouldNext = property.NextVisible(true);
                 while (ShouldNext)
                 {
-                    if (property.propertyType != SerializedPropertyType.ArraySize && property.name != "m_Script" && property.name != "data") // m_Script'i atla
+                    if (property.propertyType != SerializedPropertyType.ArraySize && property.name != "m_Script" && property.name != "data") // Exclude internal Unity fields and arrays
                     {
-                        // Deðiþken ismini yazdýr
+                        // Show the name of each property as a label
                         EditorGUILayout.LabelField(property.name, GUILayout.MinWidth(PropertyMinWidth));
                         GUILayout.Space(PropertySpace);
                     }
-                    ShouldNext = property.NextVisible(false); // to not include childrens
+                    ShouldNext = property.NextVisible(false); // Move to the next property, skipping nested children
                 }
             }
             catch
             {
+                // If an error occurs, refresh the type list and regroup the objects
                 LoadAvailableTypes();
                 GroupScriptableObjectsByType();
             }
@@ -141,31 +139,28 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 EditorGUILayout.BeginVertical("box");
                 try
                 {
-                    // Dosya adýný al
+                    // Retrieve and display the asset's file name without its extension
                     string filePath = AssetDatabase.GetAssetPath(Config);
                     string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
                     if (fileName == "") throw new System.Exception();
-                    // Dosya adýný yazdýr
                     EditorGUILayout.LabelField(fileName, EditorStyles.miniBoldLabel, GUILayout.MinWidth(PropertyMinWidth));
 
                     SerializedObject serializedObject = new SerializedObject(Config);
                     SerializedProperty property = serializedObject.GetIterator();
 
-                    // Tüm deðiþken isimlerini yazdýr ve uygun alanlarý oluþtur
+                    // Iterate through all properties to create editable fields based on their types
                     bool ShouldNext = property.NextVisible(true);
                     while (ShouldNext)
                     {
-                        if (property.propertyType != SerializedPropertyType.ArraySize && property.name != "m_Script" && property.name != "data") // m_Script'i atla
+                        if (property.propertyType != SerializedPropertyType.ArraySize && property.name != "m_Script" && property.name != "data") // Skip unwanted properties
                         {
-                            // Deðiþkenin türüne göre uygun alaný oluþtur
+                            // Generate an appropriate UI control based on the property's data type
                             switch (property.propertyType)
                             {
-                                
                                 case SerializedPropertyType.String:
-                                // Deðiþken adý ile ilgili bir kopya oluþtur
-                                string oldStringValue = property.stringValue;
-                                property.stringValue = EditorGUILayout.TextField(oldStringValue, GUIL_StandartOptions);
-                                break;
+                                    string oldStringValue = property.stringValue;
+                                    property.stringValue = EditorGUILayout.TextField(oldStringValue, GUIL_StandartOptions);
+                                    break;
                                 case SerializedPropertyType.Integer:
                                     int oldIntValue = property.intValue;
                                     property.intValue = EditorGUILayout.IntField(oldIntValue, GUIL_StandartOptions);
@@ -184,28 +179,27 @@ public class ScriptableObjectEditorWindow : EditorWindow
                                 default:
                                     EditorGUILayout.PropertyField(property, GUIContent.none, true, GUIL_DefaultOptions);
                                     break;
-                                    // Diðer türler için gerekli alanlarý buraya ekleyebilirsin
-
+                                    // Additional cases can be added here to support more property types
                             }
                             GUILayout.Space(PropertySpace);
                             serializedObject.ApplyModifiedProperties();
                         }
-                        ShouldNext = property.NextVisible(false); // to not include childrens
+                        ShouldNext = property.NextVisible(false); // Advance to the next property, excluding nested fields
                     }
                     property.Reset();
-                    // Deðiþiklikleri kaydet
-
                 }
                 catch
                 {
+                    // Handle errors by refreshing the type list and regrouping
                     LoadAvailableTypes();
                     GroupScriptableObjectsByType();
                 }
                 EditorGUILayout.EndVertical();
             }
         }
-        catch //(System.Exception e) 
+        catch
         {
+            // Catch any top-level errors and reset the data
             LoadAvailableTypes();
             GroupScriptableObjectsByType();
         }
@@ -229,7 +223,7 @@ public class ConfigTypeSelectionPopup : PopupWindowContent
 
     public override Vector2 GetWindowSize()
     {
-        return new Vector2(200, 500); // Popup boyutu
+        return new Vector2(200, 500); // Define the dimensions of the popup window
     }
 
     public override void OnGUI(Rect rect)
@@ -238,10 +232,9 @@ public class ConfigTypeSelectionPopup : PopupWindowContent
 
         if (availableTypes.Count > 0)
         {
-
             ScrollPos = EditorGUILayout.BeginScrollView(ScrollPos);
 
-            // Her tipi bir Toggle ile gösteriyoruz
+            // Display each available type with a toggle to enable or disable it
             foreach (var type in availableTypes)
             {
                 bool isSelected = selectedTypes.Contains(type);
@@ -249,19 +242,18 @@ public class ConfigTypeSelectionPopup : PopupWindowContent
 
                 if (toggle && !isSelected)
                 {
-                    selectedTypes.Add(type); // Tip seçildi
+                    selectedTypes.Add(type); // Add the type to the selection list
                     onSelectionChanged.Invoke();
                 }
                 else if (!toggle && isSelected)
                 {
-                    selectedTypes.Remove(type); // Tip çýkarýldý
+                    selectedTypes.Remove(type); // Remove the type from the selection list
                     onSelectionChanged.Invoke();
                 }
             }
 
-            // ScrollView sonu
+            // Close the scrollable area within the popup
             EditorGUILayout.EndScrollView();
         }
     }
 }
-
