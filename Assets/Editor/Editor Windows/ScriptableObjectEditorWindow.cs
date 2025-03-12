@@ -121,7 +121,9 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     {
                         // Show the name of each property as a label
                         EditorGUILayout.LabelField(property.name, GUILayout.MinWidth(PropertyMinWidth));
-                        GUILayout.Space(PropertySpace);
+                        float height = EditorGUI.GetPropertyHeight(property, GUIContent.none) + PropertySpace;
+                        height -= EditorGUIUtility.singleLineHeight;
+                        GUILayout.Space(height);
                     }
                     ShouldNext = property.NextVisible(false); // Move to the next property, skipping nested children
                 }
