@@ -83,7 +83,14 @@ public class ScriptableObjectEditorWindow : EditorWindow
     {
         // Scan the "ScriptableObjects" folder to find all unique ScriptableObject types
         availableTypes = Resources.LoadAll<ScriptableObject>("ScriptableObjects").Select(t => t.GetType()).Distinct().ToList();
-        selectedTypes.Intersect(availableTypes);
+        if (selectedTypes.Count > 0)
+        {
+            selectedTypes.Intersect(availableTypes);
+        }
+        else
+        {
+            selectedTypes.AddRange(availableTypes);
+        }
     }
 
     private void GroupScriptableObjectsByType()
@@ -119,7 +126,6 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     {
                         // Show the name of each property as a label
                         EditorGUILayout.LabelField(property.name, GUILayout.MinWidth(PropertyMinWidth));
-
                         // if any property is bigger than expected this will calculate extra space needed (ex: array properties can expand)
                         if (property.isExpanded)
                             GUILayout.Space(CalculatePropertyHeight(Configs, property) - EditorGUIUtility.singleLineHeight);
