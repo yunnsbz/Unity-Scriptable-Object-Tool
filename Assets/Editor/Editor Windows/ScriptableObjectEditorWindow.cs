@@ -183,7 +183,22 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     string filePath = AssetDatabase.GetAssetPath(Config);
                     string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
                     if (fileName == "") throw new System.Exception();
+
+                    // Display the file name and a delete button for the asset
+                    EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField(fileName, EditorStyles.miniBoldLabel, GUILayout.MinWidth(PropertyMinWidth));
+                    if(GUILayout.Button("del", GUILayout.MaxWidth(30)))
+                    {
+                        // Delete the selected ScriptableObject asset
+                        if (EditorUtility.DisplayDialog("Delete Config", "Are you sure you want to delete this config?", "Yes", "No"))
+                        {
+                            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(Config));
+                            AssetDatabase.SaveAssets();
+                            AssetDatabase.Refresh();
+                            GroupScriptableObjectsByType(); // Refresh the list after deletion
+                        }
+                    }
+                    EditorGUILayout.EndHorizontal();
 
                     SerializedObject serializedObject = new SerializedObject(Config);
                     SerializedProperty property = serializedObject.GetIterator();
