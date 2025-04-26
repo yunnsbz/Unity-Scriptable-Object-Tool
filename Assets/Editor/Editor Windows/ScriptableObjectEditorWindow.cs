@@ -39,8 +39,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
         if (GUILayout.Button("Refresh", GUILayout.Width(80)))
         {
-            LoadAvailableTypes();
-            GroupScriptableObjectsByType();
+            RefreshAll();
         }
 
         // Display a popup window at the mouse position for type selection
@@ -89,6 +88,12 @@ public class ScriptableObjectEditorWindow : EditorWindow
         EditorGUILayout.EndScrollView();
     }
 
+    private void RefreshAll()
+    {
+        LoadAvailableTypes();
+        GroupScriptableObjectsByType();
+    }
+
     void AddNewSO(Type type)
     {
         // Create a new instance of the selected ScriptableObject type
@@ -109,6 +114,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
+        RefreshAll();
     }
 
     private void LoadAvailableTypes()
