@@ -7,16 +7,16 @@ using System.Linq;
 public class ScriptableObjectEditorWindow : EditorWindow
 {
     // layout:
-    private float PropertyMinWidth = 40;
-    private float PropertySpace = 4;
-    private Vector2 ScrollPos = new Vector2();
-    private GUILayoutOption[] GUIL_StandartOptions = new GUILayoutOption[] { GUILayout.MinWidth(100), GUILayout.ExpandWidth(true) };
-    private GUILayoutOption[] GUIL_DefaultOptions = new GUILayoutOption[] { GUILayout.MinWidth(150), GUILayout.ExpandWidth(true) };
+    private readonly float PropertyMinWidth = 40;
+    private readonly float PropertySpace = 5;
+    private Vector2 ScrollPosMain = new();
+    private readonly GUILayoutOption[] GUIL_StandartOptions = new GUILayoutOption[] { GUILayout.MinWidth(100), GUILayout.ExpandWidth(true) };
+    private readonly GUILayoutOption[] GUIL_DefaultOptions = new GUILayoutOption[] { GUILayout.MinWidth(150), GUILayout.ExpandWidth(true) };
 
     // data:
     private List<List<ScriptableObject>> groupedConfigs; // Stores ScriptableObjects grouped by their class types in nested lists
-    private List<Type> selectedTypes = new List<Type>(); // Tracks which ScriptableObject types are currently selected for display
-    private List<Type> availableTypes = new List<Type>(); // Holds all unique ScriptableObject types found in the project
+    private readonly List<Type> selectedTypes = new(); // Tracks which ScriptableObject types are currently selected for display
+    private List<Type> availableTypes = new(); // Holds all unique ScriptableObject types found in the project
 
     // window:
     [MenuItem("Window/Game Config Editor")]
@@ -58,7 +58,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
         }
 
         // show configs
-        ScrollPos = EditorGUILayout.BeginScrollView(ScrollPos);
+        ScrollPosMain = EditorGUILayout.BeginScrollView(ScrollPosMain);
         if (groupedConfigs.Count != 0)
         {
             foreach (var configGroup in groupedConfigs)
@@ -147,14 +147,14 @@ public class ScriptableObjectEditorWindow : EditorWindow
     {
         try
         {
-            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.BeginVertical("box", GUILayout.Width(170));
             try
             {
                 // An empty label to align property names properly in the UI
                 EditorGUILayout.LabelField("", GUILayout.MinWidth(PropertyMinWidth));
 
                 // Iterate through the properties of the first ScriptableObject to display their names
-                SerializedObject serializedObject = new SerializedObject(Configs[0]);
+                SerializedObject serializedObject = new(Configs[0]);
                 SerializedProperty property = serializedObject.GetIterator();
 
                 bool ShouldNext = property.NextVisible(true);
@@ -180,6 +180,9 @@ public class ScriptableObjectEditorWindow : EditorWindow
             }
             EditorGUILayout.EndVertical();
 
+            if(Configs.Count == 0)
+                return; // Exit if there are no configurations to display
+
             foreach (var Config in Configs)
             {
                 EditorGUILayout.BeginVertical("box");
@@ -196,17 +199,11 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     if(GUILayout.Button("del", GUILayout.MaxWidth(30)))
                     {
                         // Delete the selected ScriptableObject asset
-                        if (EditorUtility.DisplayDialog("Delete Config", "Are you sure you want to delete this config? \n\nYou cannot undo delete assets action.", "Yes", "No"))
-                        {
-                            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(Config));
-                            AssetDatabase.SaveAssets();
-                            AssetDatabase.Refresh();
-                            GroupScriptableObjectsByType(); // Refresh the list after deletion
-                        }
+                        DeleteConfig(Config);
                     }
                     EditorGUILayout.EndHorizontal();
 
-                    SerializedObject serializedObject = new SerializedObject(Config);
+                    SerializedObject serializedObject = new(Config);
                     SerializedProperty property = serializedObject.GetIterator();
 
                     // Iterate through all properties to create editable fields based on their types
@@ -237,6 +234,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 }
                 EditorGUILayout.EndVertical();
             }
+
         }
         catch
         {
@@ -246,13 +244,24 @@ public class ScriptableObjectEditorWindow : EditorWindow
         }
     }
 
+    private void DeleteConfig<T>(T Config) where T : ScriptableObject
+    {
+        if (EditorUtility.DisplayDialog("Delete Config", "Are you sure you want to delete this config? \n\nYou cannot undo delete assets action.", "Yes", "No"))
+        {
+            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(Config));
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            GroupScriptableObjectsByType(); // Refresh the list after deletion
+        }
+    }
+
     public static float CalculatePropertyHeight<T>(List<T> configs, SerializedProperty property) where T : ScriptableObject
     {
         float maxHeight = 0f;
 
         foreach (var config in configs)
         {
-            SerializedObject serializedObject = new SerializedObject(config);
+            SerializedObject serializedObject = new(config);
             SerializedProperty targetProperty = serializedObject.FindProperty(property.propertyPath);
 
             if (targetProperty != null)
@@ -270,16 +279,16 @@ public class ScriptableObjectEditorWindow : EditorWindow
 // Custom Popup Window for Config Type Selection
 public class ConfigTypeSelectionPopup : PopupWindowContent
 {
-    private List<Type> selectedTypes;
-    private List<Type> availableTypes;
-    private Action onSelectionChanged;
-    private Vector2 ScrollPos = new Vector2();
+    private readonly List<Type> SelectedTypes;
+    private readonly List<Type> AvailableTypes;
+    private readonly Action OnSelectionChanged;
+    private Vector2 ScrollPos = new();
 
     public ConfigTypeSelectionPopup(List<Type> selectedTypes, Action onSelectionChanged, List<Type> availableTypes)
     {
-        this.selectedTypes = selectedTypes;
-        this.onSelectionChanged = onSelectionChanged;
-        this.availableTypes = availableTypes;
+        this.SelectedTypes = selectedTypes;
+        this.OnSelectionChanged = onSelectionChanged;
+        this.AvailableTypes = availableTypes;
     }
 
     public override Vector2 GetWindowSize()
@@ -291,25 +300,25 @@ public class ConfigTypeSelectionPopup : PopupWindowContent
     {
         GUILayout.Label("Select Config Types", EditorStyles.boldLabel);
 
-        if (availableTypes.Count > 0)
+        if (AvailableTypes.Count > 0)
         {
             ScrollPos = EditorGUILayout.BeginScrollView(ScrollPos);
 
             // Display each available type with a toggle to enable or disable it
-            foreach (var type in availableTypes)
+            foreach (var type in AvailableTypes)
             {
-                bool isSelected = selectedTypes.Contains(type);
+                bool isSelected = SelectedTypes.Contains(type);
                 bool toggle = EditorGUILayout.Toggle(type.Name, isSelected);
 
                 if (toggle && !isSelected)
                 {
-                    selectedTypes.Add(type); // Add the type to the selection list
-                    onSelectionChanged.Invoke();
+                    SelectedTypes.Add(type); // Add the type to the selection list
+                    OnSelectionChanged.Invoke();
                 }
                 else if (!toggle && isSelected)
                 {
-                    selectedTypes.Remove(type); // Remove the type from the selection list
-                    onSelectionChanged.Invoke();
+                    SelectedTypes.Remove(type); // Remove the type from the selection list
+                    OnSelectionChanged.Invoke();
                 }
             }
 
