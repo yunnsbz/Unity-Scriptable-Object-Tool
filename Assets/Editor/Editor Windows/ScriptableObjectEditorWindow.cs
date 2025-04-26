@@ -68,10 +68,17 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 if (selectedTypes.Count == 0 || !selectedTypes.Contains(configGroup[0].GetType()))
                     continue;
 
-                GUILayout.Space(15);
+                GUILayout.Space(20);
 
+                EditorGUILayout.BeginHorizontal();
                 GUILayout.Label(configGroup[0].GetType().Name, EditorStyles.boldLabel); // Display the type name as a section header
 
+                if(GUILayout.Button("Add New", GUILayout.Width(80)))
+                {
+                    AddNewSO(configGroup[0].GetType());
+                }
+
+                EditorGUILayout.EndHorizontal();
                 EditorGUILayout.BeginHorizontal("box");
 
                 PutPropertiesForObject(configGroup);
@@ -80,6 +87,28 @@ public class ScriptableObjectEditorWindow : EditorWindow
             }
         }
         EditorGUILayout.EndScrollView();
+    }
+
+    void AddNewSO(Type type)
+    {
+        // Create a new instance of the selected ScriptableObject type
+        ScriptableObject newConfig = ScriptableObject.CreateInstance(type);
+
+        // Save file panel that works within the project (Assets/)
+        string path = EditorUtility.SaveFilePanelInProject(
+            "Save Config",
+            type.Name + ".asset",
+            "asset",
+            "Please enter a file name to save the ScriptableObject.",
+            "Assets/Resources/ScriptableObjects"
+        );
+
+        if (!string.IsNullOrEmpty(path))
+        {
+            AssetDatabase.CreateAsset(newConfig, path);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
     }
 
     private void LoadAvailableTypes()
