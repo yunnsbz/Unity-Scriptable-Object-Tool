@@ -196,7 +196,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     if(GUILayout.Button("del", GUILayout.MaxWidth(30)))
                     {
                         // Delete the selected ScriptableObject asset
-                        if (EditorUtility.DisplayDialog("Delete Config", "Are you sure you want to delete this config?", "Yes", "No"))
+                        if (EditorUtility.DisplayDialog("Delete Config", "Are you sure you want to delete this config? \n\nYou cannot undo delete assets action.", "Yes", "No"))
                         {
                             AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(Config));
                             AssetDatabase.SaveAssets();
