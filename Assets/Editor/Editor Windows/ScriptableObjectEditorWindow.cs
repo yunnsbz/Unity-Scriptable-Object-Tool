@@ -138,6 +138,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
     private void LoadAvailableTypes()
     {
+        selectedTypes.Clear();
         // Scan the "ScriptableObjects" folder to find all unique ScriptableObject types
         availableTypes = Resources.LoadAll<ScriptableObject>("ScriptableObjects").Select(t => t.GetType()).Distinct().ToList();
         foreach (var filter in BasicFilters)
@@ -154,7 +155,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
         
         if (selectedTypes.Count == 0)
         {
-            Debug.LogWarning("no saved filter found for ScriptableObject Editor Window");
+            Debug.LogWarning("no saved filter found for ScriptableObject Editor Window.");
             selectedTypes.AddRange(availableTypes);
         }
     }
