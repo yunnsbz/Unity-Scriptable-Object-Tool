@@ -5,7 +5,7 @@ A custom Unity Editor tool designed to streamline the process of viewing and edi
 ## Features and todos:
 - [x] **Side-by-Side Editing**: View and edit multiple ScriptableObjects of the same type in a single window for faster workflows.
 - [x] **Multi-Type Support**: Display different types of ScriptableObjects in a vertical list for easy access.
-- [x] **Customizable Layout**: Easily switch between viewing configurations and types.
+- [x] **Basic Filters**: Easily switch between viewing configurations and types.
 - [x] **Intuitive Interface**: Built with Unity's Editor API for a seamless integration into your Unity projects.
 - [x] **Adding and Removing ScriptableObjects**
 - [ ] Advanced Filtering Options
@@ -20,7 +20,7 @@ A custom Unity Editor tool designed to streamline the process of viewing and edi
 ## Installation
 1. Copy and paste the script located at ``Assets/Editor/Editor Windows/ScriptableObjectEditorWindow.cs`` into your Unity project's ``Assets/Editor`` folder.
 2. For this version, your ScriptableObjects must be placed in the ``Assets/Resources/ScriptableObjects/`` folder (the program will automatically fetch all ScriptableObjects from this directory).
-3. In Unity, go to the top menu and find the new "Game Configuration Editor" window.
+3. In Unity, go to the Window menu and find the new "Game Config Editor" window.
 4. Open the editor window to start managing your ScriptableObjects.
 
 <br/> 
