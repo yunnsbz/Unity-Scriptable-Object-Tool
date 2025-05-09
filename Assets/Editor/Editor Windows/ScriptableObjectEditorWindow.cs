@@ -6,6 +6,25 @@ using System.Linq;
 
 public class ScriptableObjectEditorWindow : EditorWindow
 {
+    public const string BASIC_FILTERS_PREF = "basic_filters";
+    private const char SEPARATOR = '|'; // Filtrelerde kullanýlmayacak özel bir karakter
+
+    public static string[] BasicFilters
+    {
+        get
+        {
+            string savedFilters = EditorPrefs.GetString(BASIC_FILTERS_PREF, "");
+            return string.IsNullOrEmpty(savedFilters)
+                ? new string[0]
+                : savedFilters.Split(new[] { SEPARATOR }, StringSplitOptions.RemoveEmptyEntries);
+        }
+        set
+        {
+            string filtersString = string.Join(SEPARATOR.ToString(), value);
+            EditorPrefs.SetString(BASIC_FILTERS_PREF, filtersString);
+        }
+    }
+
     // layout:
     private readonly float PropertyMinWidth = 40;
     private readonly float PropertySpace = 5;
@@ -15,7 +34,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
     // data:
     private List<List<ScriptableObject>> groupedConfigs; // Stores ScriptableObjects grouped by their class types in nested lists
-    private readonly List<Type> selectedTypes = new(); // Tracks which ScriptableObject types are currently selected for display
+    private List<Type> selectedTypes = new(); // Tracks which ScriptableObject types are currently selected for display
     private List<Type> availableTypes = new(); // Holds all unique ScriptableObject types found in the project
 
     // window:
@@ -121,12 +140,21 @@ public class ScriptableObjectEditorWindow : EditorWindow
     {
         // Scan the "ScriptableObjects" folder to find all unique ScriptableObject types
         availableTypes = Resources.LoadAll<ScriptableObject>("ScriptableObjects").Select(t => t.GetType()).Distinct().ToList();
-        if (selectedTypes.Count > 0)
+        foreach (var filter in BasicFilters)
         {
-            selectedTypes.Intersect(availableTypes);
+            if (string.IsNullOrEmpty(filter))
+                continue;
+            // Add any additional types specified in the basic filters
+            var type = availableTypes.FirstOrDefault(t => t.Name == filter);
+            if (type != null)
+            {
+                selectedTypes.Add(type);
+            }
         }
-        else
+        
+        if (selectedTypes.Count == 0)
         {
+            Debug.LogWarning("no saved filter found for ScriptableObject Editor Window");
             selectedTypes.AddRange(availableTypes);
         }
     }
@@ -314,14 +342,15 @@ public class ConfigTypeSelectionPopup : PopupWindowContent
                 {
                     SelectedTypes.Add(type); // Add the type to the selection list
                     OnSelectionChanged.Invoke();
+                    ScriptableObjectEditorWindow.BasicFilters = SelectedTypes.Select(t => t.Name).ToArray();
                 }
                 else if (!toggle && isSelected)
                 {
                     SelectedTypes.Remove(type); // Remove the type from the selection list
                     OnSelectionChanged.Invoke();
+                    ScriptableObjectEditorWindow.BasicFilters = SelectedTypes.Select(t => t.Name).ToArray();
                 }
             }
-
             // Close the scrollable area within the popup
             EditorGUILayout.EndScrollView();
         }
