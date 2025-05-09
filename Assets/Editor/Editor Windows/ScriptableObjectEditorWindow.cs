@@ -155,7 +155,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
         
         if (selectedTypes.Count == 0)
         {
-            Debug.LogWarning("no saved filter found for ScriptableObject Editor Window.");
+            Debug.LogWarning("no saved filter found for Game Config Editor.");
             selectedTypes.AddRange(availableTypes);
         }
     }
