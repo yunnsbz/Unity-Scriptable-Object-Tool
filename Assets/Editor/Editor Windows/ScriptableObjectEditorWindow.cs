@@ -9,6 +9,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
     //prefs:
     public const string BASIC_FILTERS_PREF = "basic_filters";
     public const string PROPERTY_SPACE_PREF = "property_space";
+    public const string TABLE_ORIENTATION_PREF = "table_orientation";
     private const char SEPARATOR = '|'; // Filtrelerde kullanýlmayacak özel bir karakter
 
     public static string[] BasicFilters
@@ -33,6 +34,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
     private Vector2 ScrollPosMain = new();
     private readonly GUILayoutOption[] GUIL_StandartOptions = new GUILayoutOption[] { GUILayout.MinWidth(100), GUILayout.ExpandWidth(true) };
     private readonly GUILayoutOption[] GUIL_DefaultOptions = new GUILayoutOption[] { GUILayout.MinWidth(150), GUILayout.ExpandWidth(true) };
+    private bool OrientationVertical = true; // Determines the orientation of the layout (true: vertical. false: horizontal)
     // data:
     private List<List<ScriptableObject>> groupedConfigs; // Stores ScriptableObjects grouped by their class types in nested lists
     private List<Type> selectedTypes = new(); // Tracks which ScriptableObject types are currently selected for display
@@ -40,6 +42,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
     //textures:
     private Texture2D spaceIcon;
+    private Texture2D orientationIcon;
 
 
     // window:
@@ -51,13 +54,25 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
     private void OnEnable()
     {
-        // Initialize the editor by discovering available types and organizing ScriptableObjects accordingly
-        // Load the saved layout prefs from EditorPrefs
-        SetSpace();
+        // Load the saved property space from EditorPrefs
+        float propSpace = EditorPrefs.GetFloat(PROPERTY_SPACE_PREF, -2);
+        if (propSpace == -2)
+        {
+            // If no space is set, use the default value
+            PropertySpace = -1;
+            EditorPrefs.SetFloat(PROPERTY_SPACE_PREF, PropertySpace);
+        }
+        else PropertySpace = propSpace;
 
-        GetIcons();
+        // Load the saved table orientation from EditorPrefs
+        OrientationVertical = EditorPrefs.GetBool(TABLE_ORIENTATION_PREF, true);
+
+        // Initialize the editor by discovering available types and organizing ScriptableObjects accordingly
         LoadAvailableTypes();
         GroupScriptableObjectsByType();
+
+        // Load icons for UI buttons
+        LoadIcons();
     }
 
     private void OnGUI()
@@ -96,12 +111,36 @@ public class ScriptableObjectEditorWindow : EditorWindow
         }
         else
         {
-            spaceButton = new GUIContent("space","change space between parameters");
+            spaceButton = new GUIContent("space", "change space between parameters");
         }
 
         if (GUILayout.Button(spaceButton, GUILayout.Width(40)))
         {
             SetSpace();
+        }
+
+        GUIContent orientationButton;
+        if (orientationIcon != null)
+        {
+            orientationButton = new GUIContent(orientationIcon, "change the table orientation");
+        }
+        else
+        {
+            orientationButton = new GUIContent("rotate", "change the table orientation");
+        }
+
+        if (GUILayout.Button(orientationButton, GUILayout.Width(40)))
+        {
+            if (OrientationVertical)
+            {
+                OrientationVertical = false;
+                EditorPrefs.SetBool(TABLE_ORIENTATION_PREF, OrientationVertical);
+            }
+            else
+            {
+                OrientationVertical = true;
+                EditorPrefs.SetBool(TABLE_ORIENTATION_PREF, OrientationVertical);
+            }
         }
 
         EditorGUILayout.EndHorizontal();
@@ -121,7 +160,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label(configGroup[0].GetType().Name, EditorStyles.boldLabel); // Display the type name as a section header
 
-                if(GUILayout.Button("Add New", GUILayout.Width(80)))
+                if (GUILayout.Button("Add New", GUILayout.Width(80)))
                 {
                     AddNewSO(configGroup[0].GetType());
                 }
@@ -130,8 +169,14 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
                 // table:
                 EditorGUILayout.BeginHorizontal("box");
-                PutPropertiesForObject_V(configGroup);
-                
+                if (OrientationVertical)
+                {
+                    PutPropertiesForObject_V(configGroup);
+                }
+                else
+                {
+                    PutPropertiesForObject_H(configGroup);
+                }
                 EditorGUILayout.EndHorizontal();
             }
         }
@@ -144,7 +189,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
         if (propSpace == -2)
         {
             // If no space is set, use the default value
-            PropertySpace = 0;
+            PropertySpace = -1;
             EditorPrefs.SetFloat(PROPERTY_SPACE_PREF, PropertySpace);
         }
         else
@@ -191,13 +236,18 @@ public class ScriptableObjectEditorWindow : EditorWindow
         RefreshAll();
     }
 
-    private void GetIcons()
+    private void LoadIcons()
     {
         spaceIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/space.png");
+        orientationIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/orientation.png");
 
         if (spaceIcon == null)
         {
             Debug.LogError("space Icon not found in: Assets/Editor/Editor Windows/Icons/space.png");
+        }
+        if (orientationIcon == null)
+        {
+            Debug.LogError("orientation Icon not found in: Assets/Editor/Editor Windows/Icons/orientation.png");
         }
     }
 
@@ -217,7 +267,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 selectedTypes.Add(type);
             }
         }
-        
+
         if (selectedTypes.Count == 0)
         {
             Debug.LogWarning("no saved filter found for Game Config Editor.");
@@ -234,7 +284,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
             .GroupBy(c => c.GetType())
             .Where(g => selectedTypes.Count == 0 || selectedTypes.Contains(g.Key)) // Only include groups matching the current type filter
             .Select(g => g.ToList()) // Convert each group into a list of ScriptableObjects
-            .ToList(); 
+            .ToList();
     }
 
 
@@ -278,7 +328,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
             }
             EditorGUILayout.EndVertical();
 
-            if(Configs.Count == 0)
+            if (Configs.Count == 0)
                 return; // Exit if there are no configurations to display
 
             foreach (var Config in Configs)
@@ -294,7 +344,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     // Display the file name and a delete button for the asset
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField(fileName, EditorStyles.miniBoldLabel, GUILayout.MinWidth(PropertyMinWidth));
-                    if(GUILayout.Button("del", GUILayout.MaxWidth(30)))
+                    if (GUILayout.Button("del", GUILayout.MaxWidth(30)))
                     {
                         // Delete the selected ScriptableObject asset
                         DeleteConfig(Config);
@@ -341,6 +391,106 @@ public class ScriptableObjectEditorWindow : EditorWindow
             GroupScriptableObjectsByType();
         }
     }
+
+
+    /// <summary>
+    /// create a Horizontal (parameters will be horizontal) table for the properties of the object
+    /// </summary>
+    private void PutPropertiesForObject_H<T>(List<T> Configs) where T : ScriptableObject
+    {
+        try
+        {
+            EditorGUILayout.BeginVertical();
+            // property names horizontal line:
+            EditorGUILayout.BeginHorizontal();
+            try
+            {
+                // An empty label to align property names properly in the UI
+                EditorGUILayout.LabelField("", GUILayout.Width(152));
+
+                // Iterate through the properties of the first ScriptableObject to display their names
+                SerializedObject serializedObject = new(Configs[0]);
+                SerializedProperty property = serializedObject.GetIterator();
+
+                bool ShouldNext = property.NextVisible(true);
+                while (ShouldNext)
+                {
+                    if (property.propertyType != SerializedPropertyType.ArraySize && property.name != "m_Script" && property.name != "data") // Exclude internal Unity fields and arrays
+                    {
+                        // Show the name of each property as a label
+                        EditorGUILayout.LabelField(property.name, GUIL_StandartOptions);
+                    }
+                    ShouldNext = property.NextVisible(false); // Move to the next property, skipping nested children
+                }
+            }
+            catch
+            {
+                // If an error occurs, refresh the type list and regroup the objects
+                LoadAvailableTypes();
+                GroupScriptableObjectsByType();
+            }
+            EditorGUILayout.EndHorizontal();
+
+            // Exit if there are no configurations to display
+            if (Configs.Count == 0)
+                return;
+
+            // Iterate through each ScriptableObject in the list
+            foreach (var Config in Configs)
+            {
+                EditorGUILayout.BeginHorizontal();
+                try
+                {
+                    // Retrieve and display the asset's file name without its extension
+                    string filePath = AssetDatabase.GetAssetPath(Config);
+                    string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+                    if (fileName == "") throw new System.Exception();
+
+                    // Display the file name for the asset
+                    EditorGUILayout.LabelField(fileName, EditorStyles.miniBoldLabel, GUILayout.Width(120));
+
+                    // Display a delete button for the asset
+                    if (GUILayout.Button("del", GUILayout.Width(30)))
+                    {
+                        // Delete the selected ScriptableObject asset
+                        DeleteConfig(Config);
+                    }
+
+                    SerializedObject serializedObject = new(Config);
+                    SerializedProperty property = serializedObject.GetIterator();
+
+                    // Iterate through all properties to create editable fields based on their types
+                    bool ShouldNext = property.NextVisible(true);
+                    while (ShouldNext)
+                    {
+                        if (property.propertyType != SerializedPropertyType.ArraySize && property.name != "m_Script" && property.name != "data") // Skip unwanted properties
+                        {
+                            EditorGUILayout.PropertyField(property, GUIContent.none, true, GUIL_DefaultOptions);
+                            serializedObject.ApplyModifiedProperties();
+                        }
+                        ShouldNext = property.NextVisible(false); // Advance to the next property, excluding nested fields
+                    }
+                    property.Reset();
+                }
+                catch
+                {
+                    // Handle errors by refreshing the type list and regrouping
+                    LoadAvailableTypes();
+                    GroupScriptableObjectsByType();
+                }
+                EditorGUILayout.EndHorizontal();
+                GUILayout.Space(PropertySpace);
+            }
+            EditorGUILayout.EndVertical();
+        }
+        catch
+        {
+            // Catch any top-level errors and reset the data
+            LoadAvailableTypes();
+            GroupScriptableObjectsByType();
+        }
+    }
+
 
     private void DeleteConfig<T>(T Config) where T : ScriptableObject
     {
