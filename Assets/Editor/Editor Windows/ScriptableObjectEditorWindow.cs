@@ -206,16 +206,18 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 EditorGUILayout.EndHorizontal();
 
                 // table:
-                EditorGUILayout.BeginHorizontal("box");
                 if (OrientationVertical)
                 {
+                    EditorGUILayout.BeginHorizontal();
                     PutPropertiesForObject_V(configGroup);
+                    EditorGUILayout.EndHorizontal();    
                 }
                 else
                 {
+                    EditorGUILayout.BeginVertical("box");
                     PutPropertiesForObject_H(configGroup);
+                    EditorGUILayout.EndVertical();    
                 }
-                EditorGUILayout.EndHorizontal();
             }
         }
         EditorGUILayout.EndScrollView();
@@ -483,8 +485,6 @@ public class ScriptableObjectEditorWindow : EditorWindow
     {
         try
         {
-            EditorGUILayout.BeginVertical();
-
             // property names on horizontal line:
             EditorGUILayout.BeginHorizontal();
             try
@@ -561,7 +561,6 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 EditorGUILayout.EndHorizontal();
                 GUILayout.Space(PropertySpace);
             }
-            EditorGUILayout.EndVertical();
         }
         catch
         {
