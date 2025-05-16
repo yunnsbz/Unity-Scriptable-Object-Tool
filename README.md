@@ -18,12 +18,18 @@ A custom Unity Editor tool designed to streamline the process of viewing and edi
 <br/> 
  
 ## Installation
+1. Install the ``.unitypackage`` file from latest release.
+2. Open Unity and go to ``Assets > import package > custom package`` menu and select the ``.unitypackage`` file.
+3. Import the package.
+4. For this version, your ScriptableObjects must be placed in the ``Assets/Resources/ScriptableObjects/`` folder (the program will automatically fetch all ScriptableObjects from this directory).
+5. In Unity, go to the Window menu and find the new "Game Config Editor" window.
+
+## Other Installation
 1. Copy and paste the script located at ``Assets/Editor/Editor Windows/ScriptableObjectEditorWindow.cs`` into your Unity project's ``Assets/Editor`` folder.
 2. If you want the icons to appear in the editor window, copy only the Icons folder from  ``Assets/Editor/Editor Windows/Icons`` into your project's ``Assets/Editor/Editor Windows`` directory.
 Alternatively, you can clone this repository and move the Assets/Editor/Editor Windows folder as-is, but make sure to avoid overwriting existing scripts if you've customized them.
 3. For this version, your ScriptableObjects must be placed in the ``Assets/Resources/ScriptableObjects/`` folder (the program will automatically fetch all ScriptableObjects from this directory).
 4. In Unity, go to the Window menu and find the new "Game Config Editor" window.
-5. Open the editor window to start managing your ScriptableObjects.
 
 <br/> 
 
