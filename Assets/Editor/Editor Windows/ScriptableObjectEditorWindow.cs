@@ -45,6 +45,8 @@ public class ScriptableObjectEditorWindow : EditorWindow
     private Texture2D orientationIcon;
     private Texture2D deleteConfigIcon;
     private Texture2D addConfigIcon;
+    private Texture2D refreshIcon;
+    private Texture2D filtersIcon;
 
     // window:
     [MenuItem("Window/Game Config Editor")]
@@ -82,13 +84,32 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
         EditorGUILayout.Space();
 
-        if (GUILayout.Button("Refresh", GUILayout.Width(80)))
+
+        GUIContent refreshButton;
+        if (refreshIcon != null)
+        {
+            refreshButton = new GUIContent(refreshIcon, "refresh");
+        }
+        else
+        {
+            refreshButton = new GUIContent("refresh", "refresh");
+        }
+        if (GUILayout.Button(refreshButton, GUILayout.Width(80)))
         {
             RefreshAll();
         }
 
         // Display a popup window at the mouse position for type selection
-        if (GUILayout.Button("Filter", GUILayout.Width(80)))
+        GUIContent filtersButton;
+        if (filtersIcon != null)
+        {
+            filtersButton = new GUIContent(filtersIcon, "filters");
+        }
+        else
+        {
+            filtersButton = new GUIContent("filters", "filters");
+        }
+        if (GUILayout.Button(filtersButton, GUILayout.Width(80)))
         {
             Vector2 mousePosition = Event.current.mousePosition;
             PopupWindow.Show(new Rect(mousePosition.x, mousePosition.y + 20, 0, 0), new ConfigTypeSelectionPopup(selectedTypes, GroupScriptableObjectsByType, availableTypes));
@@ -115,7 +136,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
             spaceButton = new GUIContent("space", "change space between parameters");
         }
 
-        if (GUILayout.Button(spaceButton, GUILayout.Width(40)))
+        if (GUILayout.Button(spaceButton, GUILayout.Width(80)))
         {
             SetSpace();
         }
@@ -130,7 +151,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
             orientationButton = new GUIContent("rotate", "change the table orientation");
         }
 
-        if (GUILayout.Button(orientationButton, GUILayout.Width(40)))
+        if (GUILayout.Button(orientationButton, GUILayout.Width(80)))
         {
             if (OrientationVertical)
             {
@@ -270,6 +291,8 @@ public class ScriptableObjectEditorWindow : EditorWindow
         orientationIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/orientation.png");
         deleteConfigIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/delete.png");
         addConfigIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/add file.png");
+        refreshIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/refresh.png");
+        filtersIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/filter.png");
 
         if (spaceIcon == null)
         {
@@ -286,6 +309,14 @@ public class ScriptableObjectEditorWindow : EditorWindow
         if (addConfigIcon == null)
         {
             Debug.LogError("addConfig Icon not found in: Assets/Editor/Editor Windows/Icons/add file.png");
+        }
+        if (refreshIcon == null)
+        {
+            Debug.LogError("refresh Icon not found in: Assets/Editor/Editor Windows/Icons/refresh.png");
+        }
+        if (filtersIcon == null)
+        {
+            Debug.LogError("filters Icon not found in: Assets/Editor/Editor Windows/Icons/filter.png");
         }
     }
 
@@ -464,7 +495,8 @@ public class ScriptableObjectEditorWindow : EditorWindow
         try
         {
             EditorGUILayout.BeginVertical();
-            // property names horizontal line:
+
+            // property names on horizontal line:
             EditorGUILayout.BeginHorizontal();
             try
             {
