@@ -19,9 +19,11 @@ A custom Unity Editor tool designed to streamline the process of viewing and edi
  
 ## Installation
 1. Copy and paste the script located at ``Assets/Editor/Editor Windows/ScriptableObjectEditorWindow.cs`` into your Unity project's ``Assets/Editor`` folder.
-2. For this version, your ScriptableObjects must be placed in the ``Assets/Resources/ScriptableObjects/`` folder (the program will automatically fetch all ScriptableObjects from this directory).
-3. In Unity, go to the Window menu and find the new "Game Config Editor" window.
-4. Open the editor window to start managing your ScriptableObjects.
+2. If you want the icons to appear in the editor window, copy only the Icons folder from  ``Assets/Editor/Editor Windows/Icons`` into your project's ``Assets/Editor/Editor Windows`` directory.
+Alternatively, you can clone this repository and move the Assets/Editor/Editor Windows folder as-is, but make sure to avoid overwriting existing scripts if you've customized them.
+3. For this version, your ScriptableObjects must be placed in the ``Assets/Resources/ScriptableObjects/`` folder (the program will automatically fetch all ScriptableObjects from this directory).
+4. In Unity, go to the Window menu and find the new "Game Config Editor" window.
+5. Open the editor window to start managing your ScriptableObjects.
 
 <br/> 
 
@@ -29,7 +31,7 @@ A custom Unity Editor tool designed to streamline the process of viewing and edi
 1. **Open the Editor Window**:
    - Navigate to the Unity menu and open the "Game Configuration Editor" window.
 2. **Select Config Types**:
-   - Use the dropdown or selection area to choose the ScriptableObject types you want to edit.
+   - Click the filter button and choose the ScriptableObject types you want to see.
 3. **Edit Side-by-Side**:
    - For the selected types, view multiple instances side-by-side.
    - Modify fields such as `int`, `string`, `vector3`, `gameObject`, `array`, `enum` etc., directly in the editor.
