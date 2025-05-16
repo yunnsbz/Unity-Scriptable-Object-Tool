@@ -6,7 +6,9 @@ using System.Linq;
 
 public class ScriptableObjectEditorWindow : EditorWindow
 {
+    //prefs:
     public const string BASIC_FILTERS_PREF = "basic_filters";
+    public const string PROPERTY_SPACE_PREF = "property_space";
     private const char SEPARATOR = '|'; // Filtrelerde kullanýlmayacak özel bir karakter
 
     public static string[] BasicFilters
@@ -27,15 +29,18 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
     // layout:
     private readonly float PropertyMinWidth = 40;
-    private readonly float PropertySpace = 5;
+    private float PropertySpace = 5;
     private Vector2 ScrollPosMain = new();
     private readonly GUILayoutOption[] GUIL_StandartOptions = new GUILayoutOption[] { GUILayout.MinWidth(100), GUILayout.ExpandWidth(true) };
     private readonly GUILayoutOption[] GUIL_DefaultOptions = new GUILayoutOption[] { GUILayout.MinWidth(150), GUILayout.ExpandWidth(true) };
-
     // data:
     private List<List<ScriptableObject>> groupedConfigs; // Stores ScriptableObjects grouped by their class types in nested lists
     private List<Type> selectedTypes = new(); // Tracks which ScriptableObject types are currently selected for display
     private List<Type> availableTypes = new(); // Holds all unique ScriptableObject types found in the project
+
+    //textures:
+    private Texture2D spaceIcon;
+
 
     // window:
     [MenuItem("Window/Game Config Editor")]
@@ -47,6 +52,10 @@ public class ScriptableObjectEditorWindow : EditorWindow
     private void OnEnable()
     {
         // Initialize the editor by discovering available types and organizing ScriptableObjects accordingly
+        // Load the saved layout prefs from EditorPrefs
+        SetSpace();
+
+        GetIcons();
         LoadAvailableTypes();
         GroupScriptableObjectsByType();
     }
@@ -54,7 +63,8 @@ public class ScriptableObjectEditorWindow : EditorWindow
     private void OnGUI()
     {
         EditorGUILayout.BeginHorizontal();
-        GUILayout.Label("Game Configuration Editor", EditorStyles.boldLabel);
+
+        EditorGUILayout.Space();
 
         if (GUILayout.Button("Refresh", GUILayout.Width(80)))
         {
@@ -69,12 +79,32 @@ public class ScriptableObjectEditorWindow : EditorWindow
         }
         EditorGUILayout.EndHorizontal();
 
+        EditorGUILayout.Space(5);
+
+        EditorGUILayout.BeginHorizontal();
         // Show a summary of currently selected types or indicate none are selected
         GUILayout.Label("Selected Config Types: " + (selectedTypes.Count > 0 ? string.Join(", ", selectedTypes.Select(t => t.Name)) : "None"), EditorStyles.miniBoldLabel);
         if (groupedConfigs == null || groupedConfigs.Count == 0)
         {
             GUILayout.Label("No Configs Loaded", EditorStyles.boldLabel);
         }
+
+        GUIContent spaceButton;
+        if (spaceIcon != null)
+        {
+            spaceButton = new GUIContent(spaceIcon, "change space between parameters");
+        }
+        else
+        {
+            spaceButton = new GUIContent("space","change space between parameters");
+        }
+
+        if (GUILayout.Button(spaceButton, GUILayout.Width(40)))
+        {
+            SetSpace();
+        }
+
+        EditorGUILayout.EndHorizontal();
 
         // show configs
         ScrollPosMain = EditorGUILayout.BeginScrollView(ScrollPosMain);
@@ -97,14 +127,39 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 }
 
                 EditorGUILayout.EndHorizontal();
+
+                // table:
                 EditorGUILayout.BeginHorizontal("box");
-
-                PutPropertiesForObject(configGroup);
-
+                PutPropertiesForObject_V(configGroup);
+                
                 EditorGUILayout.EndHorizontal();
             }
         }
         EditorGUILayout.EndScrollView();
+    }
+
+    private void SetSpace()
+    {
+        float propSpace = EditorPrefs.GetFloat(PROPERTY_SPACE_PREF, -2);
+        if (propSpace == -2)
+        {
+            // If no space is set, use the default value
+            PropertySpace = 0;
+            EditorPrefs.SetFloat(PROPERTY_SPACE_PREF, PropertySpace);
+        }
+        else
+        {
+            // If space is already set, increase it by 1
+            PropertySpace += 1;
+
+            // If the space exceeds 5, reset it to 0
+            if (PropertySpace > 5) PropertySpace = -1;
+
+            // Save the new space value
+            EditorPrefs.SetFloat(PROPERTY_SPACE_PREF, PropertySpace);
+
+            Debug.Log("Property Space: " + PropertySpace);
+        }
     }
 
     private void RefreshAll()
@@ -134,6 +189,16 @@ public class ScriptableObjectEditorWindow : EditorWindow
             AssetDatabase.Refresh();
         }
         RefreshAll();
+    }
+
+    private void GetIcons()
+    {
+        spaceIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/space.png");
+
+        if (spaceIcon == null)
+        {
+            Debug.LogError("space Icon not found in: Assets/Editor/Editor Windows/Icons/space.png");
+        }
     }
 
     private void LoadAvailableTypes()
@@ -172,7 +237,11 @@ public class ScriptableObjectEditorWindow : EditorWindow
             .ToList(); 
     }
 
-    private void PutPropertiesForObject<T>(List<T> Configs) where T : ScriptableObject
+
+    /// <summary>
+    /// create a vertival table for the properties of the object
+    /// </summary>
+    private void PutPropertiesForObject_V<T>(List<T> Configs) where T : ScriptableObject
     {
         try
         {
