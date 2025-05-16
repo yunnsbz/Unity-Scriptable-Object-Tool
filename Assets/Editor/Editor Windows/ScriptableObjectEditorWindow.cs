@@ -82,50 +82,6 @@ public class ScriptableObjectEditorWindow : EditorWindow
     {
         EditorGUILayout.BeginHorizontal();
 
-        EditorGUILayout.Space();
-
-
-        GUIContent refreshButton;
-        if (refreshIcon != null)
-        {
-            refreshButton = new GUIContent(refreshIcon, "refresh");
-        }
-        else
-        {
-            refreshButton = new GUIContent("refresh", "refresh");
-        }
-        if (GUILayout.Button(refreshButton, GUILayout.Width(80)))
-        {
-            RefreshAll();
-        }
-
-        // Display a popup window at the mouse position for type selection
-        GUIContent filtersButton;
-        if (filtersIcon != null)
-        {
-            filtersButton = new GUIContent(filtersIcon, "filters");
-        }
-        else
-        {
-            filtersButton = new GUIContent("filters", "filters");
-        }
-        if (GUILayout.Button(filtersButton, GUILayout.Width(80)))
-        {
-            Vector2 mousePosition = Event.current.mousePosition;
-            PopupWindow.Show(new Rect(mousePosition.x, mousePosition.y + 20, 0, 0), new ConfigTypeSelectionPopup(selectedTypes, GroupScriptableObjectsByType, availableTypes));
-        }
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.Space(5);
-
-        EditorGUILayout.BeginHorizontal();
-        // Show a summary of currently selected types or indicate none are selected
-        GUILayout.Label("Selected Config Types: " + (selectedTypes.Count > 0 ? string.Join(", ", selectedTypes.Select(t => t.Name)) : "None"), EditorStyles.miniBoldLabel);
-        if (groupedConfigs == null || groupedConfigs.Count == 0)
-        {
-            GUILayout.Label("No Configs Loaded", EditorStyles.boldLabel);
-        }
-
         GUIContent spaceButton;
         if (spaceIcon != null)
         {
@@ -165,7 +121,40 @@ public class ScriptableObjectEditorWindow : EditorWindow
             }
         }
 
+        EditorGUILayout.Space();
+
+        GUIContent refreshButton;
+        if (refreshIcon != null)
+        {
+            refreshButton = new GUIContent(refreshIcon, "refresh");
+        }
+        else
+        {
+            refreshButton = new GUIContent("refresh", "refresh");
+        }
+        if (GUILayout.Button(refreshButton, GUILayout.Width(80)))
+        {
+            RefreshAll();
+        }
+
+        // Display a popup window at the mouse position for type selection
+        GUIContent filtersButton;
+        if (filtersIcon != null)
+        {
+            filtersButton = new GUIContent(filtersIcon, "filters");
+        }
+        else
+        {
+            filtersButton = new GUIContent("filters", "filters");
+        }
+        if (GUILayout.Button(filtersButton, GUILayout.Width(80)))
+        {
+            Vector2 mousePosition = Event.current.mousePosition;
+            PopupWindow.Show(new Rect(mousePosition.x, mousePosition.y + 20, 0, 0), new ConfigTypeSelectionPopup(selectedTypes, GroupScriptableObjectsByType, availableTypes));
+        }
         EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space(5);
 
         // show configs
         ScrollPosMain = EditorGUILayout.BeginScrollView(ScrollPosMain);
@@ -198,7 +187,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 else
                 {
                     AddConfigButton = new GUIContent("Add new", "create new config from " + configGroup[0].GetType().Name);
-                    AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(80) };
+                    AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(65) };
                 }
 
                 // Buton çaðrýsýnda GUIStyle parametresini ekleyin
@@ -463,7 +452,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
         GUILayoutOption[] deleteConfigButtonOptions;
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
 
-        if (addConfigIcon != null)
+        if (deleteConfigIcon != null)
         {
             deleteConfigButton = new GUIContent(deleteConfigIcon, "delete config permanently");
             deleteConfigButtonOptions = new GUILayoutOption[] { GUILayout.Height(20), GUILayout.Width(20) };
@@ -476,7 +465,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
         else
         {
             deleteConfigButton = new GUIContent("del", "delete config permanently");
-            deleteConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(80) };
+            deleteConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(30) };
         }
 
         if (GUILayout.Button(deleteConfigButton, buttonStyle, deleteConfigButtonOptions))
