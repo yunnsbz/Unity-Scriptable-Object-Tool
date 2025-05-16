@@ -92,7 +92,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
             spaceButton = new GUIContent("space", "change space between parameters");
         }
 
-        if (GUILayout.Button(spaceButton, GUILayout.Width(80)))
+        if (GUILayout.Button(spaceButton, GUILayout.Width(50)))
         {
             SetSpace();
         }
@@ -107,7 +107,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
             orientationButton = new GUIContent("rotate", "change the table orientation");
         }
 
-        if (GUILayout.Button(orientationButton, GUILayout.Width(80)))
+        if (GUILayout.Button(orientationButton, GUILayout.Width(50)))
         {
             if (OrientationVertical)
             {
@@ -132,7 +132,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
         {
             refreshButton = new GUIContent("refresh", "refresh");
         }
-        if (GUILayout.Button(refreshButton, GUILayout.Width(80)))
+        if (GUILayout.Button(refreshButton, GUILayout.Width(50)))
         {
             RefreshAll();
         }
@@ -147,7 +147,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
         {
             filtersButton = new GUIContent("filters", "filters");
         }
-        if (GUILayout.Button(filtersButton, GUILayout.Width(80)))
+        if (GUILayout.Button(filtersButton, GUILayout.Width(50)))
         {
             Vector2 mousePosition = Event.current.mousePosition;
             PopupWindow.Show(new Rect(mousePosition.x, mousePosition.y + 20, 0, 0), new ConfigTypeSelectionPopup(selectedTypes, GroupScriptableObjectsByType, availableTypes));
