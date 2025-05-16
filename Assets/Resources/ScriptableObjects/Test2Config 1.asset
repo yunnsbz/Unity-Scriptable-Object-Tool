@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cac81c9ac410e441bde07e00491a572, type: 3}
   m_Name: Test2Config 1
   m_EditorClassIdentifier: 
-  numberArray: 
+  numberArray: 00000000
   gameObjectArray: []

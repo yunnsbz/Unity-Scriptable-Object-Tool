@@ -43,7 +43,8 @@ public class ScriptableObjectEditorWindow : EditorWindow
     //textures:
     private Texture2D spaceIcon;
     private Texture2D orientationIcon;
-
+    private Texture2D deleteConfigIcon;
+    private Texture2D addConfigIcon;
 
     // window:
     [MenuItem("Window/Game Config Editor")]
@@ -158,12 +159,39 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 GUILayout.Space(20);
 
                 EditorGUILayout.BeginHorizontal();
-                GUILayout.Label(configGroup[0].GetType().Name, EditorStyles.boldLabel); // Display the type name as a section header
+                
+                GUIContent AddConfigButton;
+                GUILayoutOption[] AddConfigButtonOptions;
+                GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
 
-                if (GUILayout.Button("Add New", GUILayout.Width(80)))
+                if (addConfigIcon != null)
+                {
+                    AddConfigButton = new GUIContent(addConfigIcon, "create new config from " + configGroup[0].GetType().Name);
+                    AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Height(20), GUILayout.Width(20) };
+
+                    // Ýkon için padding'i azalt
+                    buttonStyle.padding = new RectOffset(2, 2, 2, 2);
+                    // Ýkonun buton içindeki boyutunu ayarla
+                    buttonStyle.imagePosition = ImagePosition.ImageOnly;
+                }
+                else
+                {
+                    AddConfigButton = new GUIContent("Add new", "create new config from " + configGroup[0].GetType().Name);
+                    AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(80) };
+                }
+
+                // Buton çaðrýsýnda GUIStyle parametresini ekleyin
+                if (GUILayout.Button(AddConfigButton, buttonStyle, AddConfigButtonOptions))
                 {
                     AddNewSO(configGroup[0].GetType());
                 }
+
+                // Özel stil oluþtur
+                GUIStyle centeredLabelStyle = new GUIStyle(EditorStyles.boldLabel);
+                centeredLabelStyle.fontSize = 16; // Font boyutunu ayarla
+
+                // Etiketi bu stil ile görüntüle
+                GUILayout.Label(configGroup[0].GetType().Name, centeredLabelStyle);
 
                 EditorGUILayout.EndHorizontal();
 
@@ -240,6 +268,8 @@ public class ScriptableObjectEditorWindow : EditorWindow
     {
         spaceIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/space.png");
         orientationIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/orientation.png");
+        deleteConfigIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/delete.png");
+        addConfigIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/add file.png");
 
         if (spaceIcon == null)
         {
@@ -248,6 +278,14 @@ public class ScriptableObjectEditorWindow : EditorWindow
         if (orientationIcon == null)
         {
             Debug.LogError("orientation Icon not found in: Assets/Editor/Editor Windows/Icons/orientation.png");
+        }
+        if(deleteConfigIcon == null)
+        {
+            Debug.LogError("deleteConfig Icon not found in: Assets/Editor/Editor Windows/Icons/delete.png");
+        }
+        if (addConfigIcon == null)
+        {
+            Debug.LogError("addConfig Icon not found in: Assets/Editor/Editor Windows/Icons/add file.png");
         }
     }
 
@@ -344,11 +382,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     // Display the file name and a delete button for the asset
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField(fileName, EditorStyles.miniBoldLabel, GUILayout.MinWidth(PropertyMinWidth));
-                    if (GUILayout.Button("del", GUILayout.MaxWidth(30)))
-                    {
-                        // Delete the selected ScriptableObject asset
-                        DeleteConfig(Config);
-                    }
+                    DeleteButton(Config);
                     EditorGUILayout.EndHorizontal();
 
                     SerializedObject serializedObject = new(Config);
@@ -389,6 +423,35 @@ public class ScriptableObjectEditorWindow : EditorWindow
             // Catch any top-level errors and reset the data
             LoadAvailableTypes();
             GroupScriptableObjectsByType();
+        }
+    }
+
+    private void DeleteButton<T>(T Config) where T : ScriptableObject
+    {
+        GUIContent deleteConfigButton;
+        GUILayoutOption[] deleteConfigButtonOptions;
+        GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
+
+        if (addConfigIcon != null)
+        {
+            deleteConfigButton = new GUIContent(deleteConfigIcon, "delete config permanently");
+            deleteConfigButtonOptions = new GUILayoutOption[] { GUILayout.Height(20), GUILayout.Width(20) };
+
+            // Ýkon için padding'i azalt
+            buttonStyle.padding = new RectOffset(2, 2, 2, 2);
+            // Ýkonun buton içindeki boyutunu ayarla
+            buttonStyle.imagePosition = ImagePosition.ImageOnly;
+        }
+        else
+        {
+            deleteConfigButton = new GUIContent("del", "delete config permanently");
+            deleteConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(80) };
+        }
+
+        if (GUILayout.Button(deleteConfigButton, buttonStyle, deleteConfigButtonOptions))
+        {
+            // Delete the selected ScriptableObject asset
+            DeleteConfig(Config);
         }
     }
 
@@ -446,15 +509,11 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
                     if (fileName == "") throw new System.Exception();
 
+                    // Display a delete button for the asset
+                    DeleteButton(Config);
+
                     // Display the file name for the asset
                     EditorGUILayout.LabelField(fileName, EditorStyles.miniBoldLabel, GUILayout.Width(120));
-
-                    // Display a delete button for the asset
-                    if (GUILayout.Button("del", GUILayout.Width(30)))
-                    {
-                        // Delete the selected ScriptableObject asset
-                        DeleteConfig(Config);
-                    }
 
                     SerializedObject serializedObject = new(Config);
                     SerializedProperty property = serializedObject.GetIterator();
