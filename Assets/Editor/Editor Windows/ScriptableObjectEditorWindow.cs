@@ -403,7 +403,8 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
                     // Display the file name and a delete button for the asset
                     EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField(fileName, EditorStyles.miniBoldLabel, GUILayout.MinWidth(PropertyMinWidth));
+                    GUIContent propertyContent = new GUIContent(fileName, fileName);
+                    EditorGUILayout.LabelField(propertyContent, EditorStyles.miniBoldLabel, GUILayout.MinWidth(PropertyMinWidth));
                     DeleteButton(Config);
                     EditorGUILayout.EndHorizontal();
 
@@ -534,7 +535,8 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     DeleteButton(Config);
 
                     // Display the file name for the asset
-                    EditorGUILayout.LabelField(fileName, EditorStyles.miniBoldLabel, GUILayout.Width(120));
+                    GUIContent propertyContent = new GUIContent(fileName, fileName);
+                    EditorGUILayout.LabelField(propertyContent, EditorStyles.miniBoldLabel, GUILayout.Width(120));
 
                     SerializedObject serializedObject = new(Config);
                     SerializedProperty property = serializedObject.GetIterator();
