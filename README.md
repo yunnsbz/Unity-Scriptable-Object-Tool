@@ -8,9 +8,9 @@ A custom Unity Editor tool designed to streamline the process of viewing and edi
 - [x] **Basic Filters**: Easily switch between viewing configurations and types.
 - [x] **Intuitive Interface**: Built with Unity's Editor API for a seamless integration into your Unity projects.
 - [x] **Adding and Removing ScriptableObjects**
+- [x] **Ability to switch between vertical and horizontal table layout**
 - [ ] Advanced Filtering Options
 - [ ] Search options
-- [ ] Ability to switch between vertical and horizontal table layout
 - [ ] Data operations (copy, paste)
 - [ ] Tool menu options
 - [ ] Dynamic ScriptableObject Loading: <br/> A functionality to dynamically locate and load ScriptableObjects within the project, removing the dependency on a specific folder structure (e.g., Assets/Resources/ScriptableObjects/).
