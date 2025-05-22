@@ -156,6 +156,32 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
         EditorGUILayout.Space(5);
 
+        if(selectedTypes == null || selectedTypes.Count == 0 || groupedConfigs == null || groupedConfigs.Count == 0)
+        {
+            EditorGUILayout.LabelField("Select a config from filters", EditorStyles.boldLabel);
+            return;
+        }
+
+
+        // create config button styles:
+        GUIContent AddConfigButton;
+        GUILayoutOption[] AddConfigButtonOptions;
+        GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
+        if (addConfigIcon != null)
+        {
+            AddConfigButton = new GUIContent(addConfigIcon, "create new config");
+            AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Height(20), GUILayout.Width(20) };
+
+            buttonStyle.padding = new RectOffset(2, 2, 2, 2);
+            buttonStyle.imagePosition = ImagePosition.ImageOnly;
+        }
+        else
+        {
+            AddConfigButton = new GUIContent("Add new", "create new config");
+            AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(65) };
+        }
+
+
         // show configs
         ScrollPosMain = EditorGUILayout.BeginScrollView(ScrollPosMain);
         if (groupedConfigs.Count != 0)
@@ -169,28 +195,8 @@ public class ScriptableObjectEditorWindow : EditorWindow
                 GUILayout.Space(20);
 
                 EditorGUILayout.BeginHorizontal();
-                
-                GUIContent AddConfigButton;
-                GUILayoutOption[] AddConfigButtonOptions;
-                GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
 
-                if (addConfigIcon != null)
-                {
-                    AddConfigButton = new GUIContent(addConfigIcon, "create new config from " + configGroup[0].GetType().Name);
-                    AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Height(20), GUILayout.Width(20) };
-
-                    // Ýkon için padding'i azalt
-                    buttonStyle.padding = new RectOffset(2, 2, 2, 2);
-                    // Ýkonun buton içindeki boyutunu ayarla
-                    buttonStyle.imagePosition = ImagePosition.ImageOnly;
-                }
-                else
-                {
-                    AddConfigButton = new GUIContent("Add new", "create new config from " + configGroup[0].GetType().Name);
-                    AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(65) };
-                }
-
-                // Buton çaðrýsýnda GUIStyle parametresini ekleyin
+                // create config button:
                 if (GUILayout.Button(AddConfigButton, buttonStyle, AddConfigButtonOptions))
                 {
                     AddNewSO(configGroup[0].GetType());
@@ -326,12 +332,6 @@ public class ScriptableObjectEditorWindow : EditorWindow
             {
                 selectedTypes.Add(type);
             }
-        }
-
-        if (selectedTypes.Count == 0)
-        {
-            Debug.LogWarning("no saved filter found for Game Config Editor.");
-            selectedTypes.AddRange(availableTypes);
         }
     }
 
