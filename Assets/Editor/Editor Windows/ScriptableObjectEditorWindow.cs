@@ -40,13 +40,26 @@ public class ScriptableObjectEditorWindow : EditorWindow
     private List<Type> selectedTypes = new(); // Tracks which ScriptableObject types are currently selected for display
     private List<Type> availableTypes = new(); // Holds all unique ScriptableObject types found in the project
 
-    //textures:
+    // textures:
     private Texture2D spaceIcon;
     private Texture2D orientationIcon;
     private Texture2D deleteConfigIcon;
     private Texture2D addConfigIcon;
     private Texture2D refreshIcon;
     private Texture2D filtersIcon;
+
+    // Buttons Styles:
+    GUIContent spaceButton;
+    GUIContent orientationButton;
+    GUIContent refreshButton;
+    GUIContent filtersButton;
+    // create config button styles:
+    GUIContent AddConfigButton;
+    GUILayoutOption[] AddConfigButtonOptions;
+    GUIStyle buttonStyle;
+
+    // label styles:
+    GUIStyle centeredLabelStyle;
 
     // window:
     [MenuItem("Window/Game Config Editor")]
@@ -76,13 +89,17 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
         // Load icons for UI buttons
         LoadIcons();
+
+        // setup styles 
+        SetupButtonStyles();
     }
 
-    private void OnGUI()
+    /// <summary>
+    /// Sets up the GUI buttons with their respective icons and tooltips.
+    /// </summary>
+    private void SetupButtonStyles()
     {
-        EditorGUILayout.BeginHorizontal();
-
-        GUIContent spaceButton;
+        // GUI content for space button
         if (spaceIcon != null)
         {
             spaceButton = new GUIContent(spaceIcon, "change space between parameters");
@@ -92,12 +109,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
             spaceButton = new GUIContent("space", "change space between parameters");
         }
 
-        if (GUILayout.Button(spaceButton, GUILayout.Width(50)))
-        {
-            SetSpace();
-        }
-
-        GUIContent orientationButton;
+        // GUI content for orientation button
         if (orientationIcon != null)
         {
             orientationButton = new GUIContent(orientationIcon, "change the table orientation");
@@ -107,6 +119,50 @@ public class ScriptableObjectEditorWindow : EditorWindow
             orientationButton = new GUIContent("rotate", "change the table orientation");
         }
 
+        // GUI content for refresh button
+        if (refreshIcon != null)
+        {
+            refreshButton = new GUIContent(refreshIcon, "refresh");
+        }
+        else
+        {
+            refreshButton = new GUIContent("refresh", "refresh");
+        }
+
+        // GUI content for filters button
+        if (filtersIcon != null)
+        {
+            filtersButton = new GUIContent(filtersIcon, "filters");
+        }
+        else
+        {
+            filtersButton = new GUIContent("filters", "filters");
+        }
+
+        // 'create config' button styles
+        if (addConfigIcon != null)
+        {
+            AddConfigButton = new GUIContent(addConfigIcon, "create new config");
+            AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Height(20), GUILayout.Width(20) };
+        }
+        else
+        {
+            AddConfigButton = new GUIContent("Add new", "create new config");
+            AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(65) };
+        }
+    }
+
+    private void OnGUI()
+    {
+        EditorGUILayout.BeginHorizontal();
+
+        // A button to set space between properties
+        if (GUILayout.Button(spaceButton, GUILayout.Width(50)))
+        {
+            SetSpace();
+        }
+
+        // A button to change the orientation of the table
         if (GUILayout.Button(orientationButton, GUILayout.Width(50)))
         {
             if (OrientationVertical)
@@ -123,30 +179,13 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
         EditorGUILayout.Space();
 
-        GUIContent refreshButton;
-        if (refreshIcon != null)
-        {
-            refreshButton = new GUIContent(refreshIcon, "refresh");
-        }
-        else
-        {
-            refreshButton = new GUIContent("refresh", "refresh");
-        }
+        // A button to refresh the list of ScriptableObjects
         if (GUILayout.Button(refreshButton, GUILayout.Width(50)))
         {
             RefreshAll();
         }
 
-        // Display a popup window at the mouse position for type selection
-        GUIContent filtersButton;
-        if (filtersIcon != null)
-        {
-            filtersButton = new GUIContent(filtersIcon, "filters");
-        }
-        else
-        {
-            filtersButton = new GUIContent("filters", "filters");
-        }
+        // Display a popup window at the mouse position for basic filters
         if (GUILayout.Button(filtersButton, GUILayout.Width(50)))
         {
             Vector2 mousePosition = Event.current.mousePosition;
@@ -156,31 +195,12 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
         EditorGUILayout.Space(5);
 
-        if(selectedTypes == null || selectedTypes.Count == 0 || groupedConfigs == null || groupedConfigs.Count == 0)
+        // if there is no SO loaded or selected from filters show a message
+        if (selectedTypes == null || selectedTypes.Count == 0 || groupedConfigs == null || groupedConfigs.Count == 0)
         {
-            EditorGUILayout.LabelField("Select a config from filters", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("[No Config Selected]", EditorStyles.boldLabel);
             return;
         }
-
-
-        // create config button styles:
-        GUIContent AddConfigButton;
-        GUILayoutOption[] AddConfigButtonOptions;
-        GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
-        if (addConfigIcon != null)
-        {
-            AddConfigButton = new GUIContent(addConfigIcon, "create new config");
-            AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Height(20), GUILayout.Width(20) };
-
-            buttonStyle.padding = new RectOffset(2, 2, 2, 2);
-            buttonStyle.imagePosition = ImagePosition.ImageOnly;
-        }
-        else
-        {
-            AddConfigButton = new GUIContent("Add new", "create new config");
-            AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(65) };
-        }
-
 
         // show configs
         ScrollPosMain = EditorGUILayout.BeginScrollView(ScrollPosMain);
@@ -196,17 +216,23 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
                 EditorGUILayout.BeginHorizontal();
 
+                // 'create config' button styles
+                if (addConfigIcon != null)
+                {
+                    buttonStyle = new GUIStyle(GUI.skin.button);
+                    buttonStyle.padding = new RectOffset(2, 2, 2, 2);
+                    buttonStyle.imagePosition = ImagePosition.ImageOnly;
+                }
+
                 // create config button:
                 if (GUILayout.Button(AddConfigButton, buttonStyle, AddConfigButtonOptions))
                 {
                     AddNewSO(configGroup[0].GetType());
                 }
 
-                // Özel stil oluþtur
-                GUIStyle centeredLabelStyle = new GUIStyle(EditorStyles.boldLabel);
-                centeredLabelStyle.fontSize = 16; // Font boyutunu ayarla
-
-                // Etiketi bu stil ile görüntüle
+                // show name of the ScriptableObject type
+                centeredLabelStyle = new GUIStyle(EditorStyles.boldLabel);
+                centeredLabelStyle.fontSize = 16;
                 GUILayout.Label(configGroup[0].GetType().Name, centeredLabelStyle);
 
                 EditorGUILayout.EndHorizontal();
