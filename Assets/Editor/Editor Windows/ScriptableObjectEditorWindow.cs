@@ -57,6 +57,9 @@ public class ScriptableObjectEditorWindow : EditorWindow
     GUIContent AddConfigButton;
     GUILayoutOption[] AddConfigButtonOptions;
     GUIStyle buttonStyle;
+    // delete config button styles:
+    GUIContent deleteConfigButton;
+    GUILayoutOption[] deleteConfigButtonOptions;
 
     // label styles:
     GUIStyle centeredLabelStyle;
@@ -149,6 +152,18 @@ public class ScriptableObjectEditorWindow : EditorWindow
         {
             AddConfigButton = new GUIContent("Add new", "create new config");
             AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(65) };
+        }
+
+        // 'delete config' button styles
+        if (deleteConfigIcon != null)
+        {
+            deleteConfigButton = new GUIContent(deleteConfigIcon, "delete config permanently");
+            deleteConfigButtonOptions = new GUILayoutOption[] { GUILayout.Height(20), GUILayout.Width(20) };
+        }
+        else
+        {
+            deleteConfigButton = new GUIContent("del", "delete config permanently");
+            deleteConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(30) };
         }
     }
 
@@ -477,24 +492,13 @@ public class ScriptableObjectEditorWindow : EditorWindow
 
     private void DeleteButton<T>(T Config) where T : ScriptableObject
     {
-        GUIContent deleteConfigButton;
-        GUILayoutOption[] deleteConfigButtonOptions;
+        
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
 
         if (deleteConfigIcon != null)
         {
-            deleteConfigButton = new GUIContent(deleteConfigIcon, "delete config permanently");
-            deleteConfigButtonOptions = new GUILayoutOption[] { GUILayout.Height(20), GUILayout.Width(20) };
-
-            // Ýkon için padding'i azalt
             buttonStyle.padding = new RectOffset(2, 2, 2, 2);
-            // Ýkonun buton içindeki boyutunu ayarla
             buttonStyle.imagePosition = ImagePosition.ImageOnly;
-        }
-        else
-        {
-            deleteConfigButton = new GUIContent("del", "delete config permanently");
-            deleteConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(30) };
         }
 
         if (GUILayout.Button(deleteConfigButton, buttonStyle, deleteConfigButtonOptions))
