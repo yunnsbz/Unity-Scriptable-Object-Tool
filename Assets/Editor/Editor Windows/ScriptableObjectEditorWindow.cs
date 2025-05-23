@@ -43,7 +43,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
     // textures:
     private Texture2D spaceIcon;
     private Texture2D orientationIcon;
-    private Texture2D deleteConfigIcon;
+    private Texture2D ConfigOptionsIcon;
     private Texture2D addConfigIcon;
     private Texture2D refreshIcon;
     private Texture2D filtersIcon;
@@ -58,8 +58,8 @@ public class ScriptableObjectEditorWindow : EditorWindow
     GUILayoutOption[] AddConfigButtonOptions;
     GUIStyle buttonStyle;
     // delete config button styles:
-    GUIContent deleteConfigButton;
-    GUILayoutOption[] deleteConfigButtonOptions;
+    GUIContent ConfigOptionsButton;
+    GUILayoutOption[] ConfigOoptionsButtonOptions;
 
     // label styles:
     GUIStyle centeredLabelStyle;
@@ -155,15 +155,15 @@ public class ScriptableObjectEditorWindow : EditorWindow
         }
 
         // 'delete config' button styles
-        if (deleteConfigIcon != null)
+        if (ConfigOptionsIcon != null)
         {
-            deleteConfigButton = new GUIContent(deleteConfigIcon, "delete config permanently");
-            deleteConfigButtonOptions = new GUILayoutOption[] { GUILayout.Height(20), GUILayout.Width(20) };
+            ConfigOptionsButton = new GUIContent(ConfigOptionsIcon, "delete config permanently");
+            ConfigOoptionsButtonOptions = new GUILayoutOption[] { GUILayout.Height(20), GUILayout.Width(20) };
         }
         else
         {
-            deleteConfigButton = new GUIContent("del", "delete config permanently");
-            deleteConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(30) };
+            ConfigOptionsButton = new GUIContent("del", "delete config permanently");
+            ConfigOoptionsButtonOptions = new GUILayoutOption[] { GUILayout.Width(30) };
         }
     }
 
@@ -327,7 +327,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
     {
         spaceIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/space.png");
         orientationIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/orientation.png");
-        deleteConfigIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/delete.png");
+        ConfigOptionsIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/options.png");
         addConfigIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/add file.png");
         refreshIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/refresh.png");
         filtersIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/filter.png");
@@ -340,9 +340,9 @@ public class ScriptableObjectEditorWindow : EditorWindow
         {
             Debug.LogError("orientation Icon not found in: Assets/Editor/Editor Windows/Icons/orientation.png");
         }
-        if(deleteConfigIcon == null)
+        if(ConfigOptionsIcon == null)
         {
-            Debug.LogError("deleteConfig Icon not found in: Assets/Editor/Editor Windows/Icons/delete.png");
+            Debug.LogError("ConfigOptions Icon not found in: Assets/Editor/Editor Windows/Icons/options.png");
         }
         if (addConfigIcon == null)
         {
@@ -446,7 +446,7 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     EditorGUILayout.BeginHorizontal();
                     GUIContent propertyContent = new GUIContent(fileName, fileName);
                     EditorGUILayout.LabelField(propertyContent, EditorStyles.miniBoldLabel, GUILayout.MinWidth(PropertyMinWidth));
-                    DeleteButton(Config);
+                    OptionsButton(Config);
                     EditorGUILayout.EndHorizontal();
 
                     SerializedObject serializedObject = new(Config);
@@ -490,24 +490,31 @@ public class ScriptableObjectEditorWindow : EditorWindow
         }
     }
 
-    private void DeleteButton<T>(T Config) where T : ScriptableObject
+    private void OptionsButton<T>(T Config) where T : ScriptableObject
     {
         
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
 
-        if (deleteConfigIcon != null)
+        if (ConfigOptionsIcon != null)
         {
             buttonStyle.padding = new RectOffset(2, 2, 2, 2);
             buttonStyle.imagePosition = ImagePosition.ImageOnly;
         }
 
-        if (GUILayout.Button(deleteConfigButton, buttonStyle, deleteConfigButtonOptions))
+        if (GUILayout.Button(ConfigOptionsButton, buttonStyle, ConfigOoptionsButtonOptions))
         {
-            // Delete the selected ScriptableObject asset
-            DeleteConfig(Config);
+            ShowOptionsMenu(Config);
         }
     }
 
+    private void ShowOptionsMenu<T>(T Config) where T : ScriptableObject
+    {
+        GenericMenu menu = new GenericMenu();
+
+        menu.AddItem(new GUIContent("Delete Config"), false, () => DeleteConfig(Config));
+        
+        menu.ShowAsContext();
+    }
 
     /// <summary>
     /// create a Horizontal (parameters will be horizontal) table for the properties of the object
