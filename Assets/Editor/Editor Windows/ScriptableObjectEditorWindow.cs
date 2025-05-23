@@ -8,27 +8,6 @@ namespace ScriptableObjectManager
 {
     public class ScriptableObjectEditorWindow : EditorWindow
     {
-        //prefs:
-        public const string BASIC_FILTERS_PREF = "basic_filters";
-        public const string TABLE_ORIENTATION_PREF = "table_orientation";
-        private const char SEPARATOR = '|'; // Filtrelerde kullanýlmayacak özel bir karakter
-
-        public static string[] BasicFilters
-        {
-            get
-            {
-                string savedFilters = EditorPrefs.GetString(BASIC_FILTERS_PREF, "");
-                return string.IsNullOrEmpty(savedFilters)
-                    ? new string[0]
-                    : savedFilters.Split(new[] { SEPARATOR }, StringSplitOptions.RemoveEmptyEntries);
-            }
-            set
-            {
-                string filtersString = string.Join(SEPARATOR.ToString(), value);
-                EditorPrefs.SetString(BASIC_FILTERS_PREF, filtersString);
-            }
-        }
-
         // layout:
         private Vector2 ScrollPosMain = new();
         private bool OrientationVertical = true; // Determines the orientation of the layout (true: vertical. false: horizontal)
@@ -66,7 +45,7 @@ namespace ScriptableObjectManager
         private void OnEnable()
         {
             // Load the saved table orientation from EditorPrefs
-            OrientationVertical = EditorPrefs.GetBool(TABLE_ORIENTATION_PREF, true);
+            OrientationVertical = SOManagerPrefs.GetOrientation();
 
             // Initialize the editor by discovering available types and organizing ScriptableObjects accordingly
             LoadAvailableTypes();
@@ -157,12 +136,12 @@ namespace ScriptableObjectManager
                 if (OrientationVertical)
                 {
                     OrientationVertical = false;
-                    EditorPrefs.SetBool(TABLE_ORIENTATION_PREF, OrientationVertical);
+                    SOManagerPrefs.SetOrientation(OrientationVertical);
                 }
                 else
                 {
                     OrientationVertical = true;
-                    EditorPrefs.SetBool(TABLE_ORIENTATION_PREF, OrientationVertical);
+                    SOManagerPrefs.SetOrientation(OrientationVertical);
                 }
             }
 
@@ -282,7 +261,7 @@ namespace ScriptableObjectManager
             selectedTypes.Clear();
             // Scan the "ScriptableObjects" folder to find all unique ScriptableObject types
             availableTypes = Resources.LoadAll<ScriptableObject>("ScriptableObjects").Select(t => t.GetType()).Distinct().ToList();
-            foreach (var filter in BasicFilters)
+            foreach (var filter in SOManagerPrefs.BasicFilters)
             {
                 if (string.IsNullOrEmpty(filter))
                     continue;
@@ -306,10 +285,6 @@ namespace ScriptableObjectManager
                 .Select(g => g.ToList()) // Convert each group into a list of ScriptableObjects
                 .ToList();
         }
-
-        
-
-        
 
         void OnLostFocus()
         {

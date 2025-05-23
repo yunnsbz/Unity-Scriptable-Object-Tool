@@ -7,7 +7,9 @@ using UnityEngine;
 namespace ScriptableObjectManager
 {
 
-    // Custom Popup Window for Config Type Selection
+    /// <summary>
+    /// Custom Popup Window for Config Type Selection
+    /// </summary>
     internal class ConfigTypeSelectionPopup : PopupWindowContent
     {
         private readonly List<Type> SelectedTypes;
@@ -45,13 +47,13 @@ namespace ScriptableObjectManager
                     {
                         SelectedTypes.Add(type); // Add the type to the selection list
                         OnSelectionChanged.Invoke();
-                        ScriptableObjectEditorWindow.BasicFilters = SelectedTypes.Select(t => t.Name).ToArray();
+                        SOManagerPrefs.BasicFilters = SelectedTypes.Select(t => t.Name).ToArray();
                     }
                     else if (!toggle && isSelected)
                     {
                         SelectedTypes.Remove(type); // Remove the type from the selection list
                         OnSelectionChanged.Invoke();
-                        ScriptableObjectEditorWindow.BasicFilters = SelectedTypes.Select(t => t.Name).ToArray();
+                        SOManagerPrefs.BasicFilters = SelectedTypes.Select(t => t.Name).ToArray();
                     }
                 }
                 // Close the scrollable area within the popup

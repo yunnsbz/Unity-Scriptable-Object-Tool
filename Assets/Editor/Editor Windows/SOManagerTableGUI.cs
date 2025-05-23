@@ -8,11 +8,8 @@ namespace ScriptableObjectManager
     /// <summary>
     /// Class to manage the GUI for displaying ScriptableObject properties in a table format.
     /// </summary>
-    public class SOManagerTableGUI
+    internal class SOManagerTableGUI
     {
-        // editor prefs keys:
-        private const string PROPERTY_SPACE_PREF = "property_space";
-
         // layout values:
         private readonly float PropertyMinWidth = 40;
         private float PropertySpace = 5;
@@ -44,12 +41,12 @@ namespace ScriptableObjectManager
             }
 
             // Load the saved property space from EditorPrefs
-            float propSpace = EditorPrefs.GetFloat(PROPERTY_SPACE_PREF, -2);
+            float propSpace = SOManagerPrefs.GetPropertySpace();
             if (propSpace == -2)
             {
                 // If no space is set, use the default value
                 PropertySpace = -1;
-                EditorPrefs.SetFloat(PROPERTY_SPACE_PREF, PropertySpace);
+                SOManagerPrefs.SetPropertySpace(PropertySpace);
             }
             else PropertySpace = propSpace;
         }
@@ -357,12 +354,12 @@ namespace ScriptableObjectManager
 
         internal void SetSpace()
         {
-            float propSpace = EditorPrefs.GetFloat(PROPERTY_SPACE_PREF, -2);
+            float propSpace = SOManagerPrefs.GetPropertySpace();
             if (propSpace == -2)
             {
                 // If no space is set, use the default value
                 PropertySpace = -1;
-                EditorPrefs.SetFloat(PROPERTY_SPACE_PREF, PropertySpace);
+                SOManagerPrefs.SetPropertySpace(PropertySpace);
             }
             else
             {
@@ -373,9 +370,9 @@ namespace ScriptableObjectManager
                 if (PropertySpace > 5) PropertySpace = -1;
 
                 // Save the new space value
-                EditorPrefs.SetFloat(PROPERTY_SPACE_PREF, PropertySpace);
+                SOManagerPrefs.SetPropertySpace(PropertySpace);
 
-                Debug.Log("Property Space: " + PropertySpace);
+                Debug.Log("SO Manager: Property Space: " + PropertySpace);
             }
         }
 
