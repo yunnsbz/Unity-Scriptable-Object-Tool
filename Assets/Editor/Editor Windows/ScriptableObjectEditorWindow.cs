@@ -470,7 +470,52 @@ namespace ScriptableObjectManager
                         // Display the file name and a delete button for the asset
                         EditorGUILayout.BeginHorizontal();
                         GUIContent propertyContent = new GUIContent(fileName, fileName);
-                        EditorGUILayout.LabelField(propertyContent, EditorStyles.miniBoldLabel, GUILayout.MinWidth(PropertyMinWidth));
+
+                        Rect elementRect = GUILayoutUtility.GetRect(120, 18);
+
+                        if (isRenaming && ObjectToRename != null && ObjectToRename == Config)
+                        {
+                            GUI.SetNextControlName("RenameField");
+
+                            // Display a text field for renaming the asset.if renameText is empty, show the file name until the user types something
+                            renameText = EditorGUI.TextField(elementRect, renameText == "" ? fileName : renameText);
+
+                            Event e = Event.current;
+
+                            // textfield + confirm button (for mouse event it must also contain the button area)
+                            elementRect.width += 25;
+                            if (isRenaming && e.type == EventType.MouseDown && !elementRect.Contains(e.mousePosition))
+                            {
+                                isRenaming = false;
+                                GUI.FocusControl(null);
+                                e.Use();
+                            }
+
+                            if (FinishRenaming || Event.current.keyCode == KeyCode.Return || Event.current.keyCode == KeyCode.KeypadEnter)
+                            {
+                                AssetDatabase.RenameAsset(filePath, renameText);
+                                AssetDatabase.SaveAssets();
+                                isRenaming = false;
+                                FinishRenaming = false;
+                                renameText = "";
+                                ObjectToRename = null;
+                                GUI.FocusControl(null);
+                            }
+                            else if (Event.current.keyCode == KeyCode.Escape)
+                            {
+                                renameText = "";
+                                isRenaming = false;
+                                ObjectToRename = null;
+                                GUI.FocusControl(null);
+                            }
+
+                            EditorGUI.FocusTextInControl("RenameField");
+                        }
+                        else
+                        {
+                            EditorGUI.LabelField(elementRect, propertyContent, EditorStyles.miniBoldLabel);
+                        }
+
                         OptionsButton(Config);
                         EditorGUILayout.EndHorizontal();
 
