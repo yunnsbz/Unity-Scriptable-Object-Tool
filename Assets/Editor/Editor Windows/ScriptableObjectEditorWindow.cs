@@ -45,6 +45,7 @@ namespace ScriptableObjectManager
 
         // rename operation:
         bool isRenaming = false;
+        bool FinishRenaming = false;
         ScriptableObject ObjectToRename = null;
         string renameText = "";
 
@@ -524,11 +525,21 @@ namespace ScriptableObjectManager
                 buttonStyle.padding = new RectOffset(2, 2, 2, 2);
                 buttonStyle.imagePosition = ImagePosition.ImageOnly;
             }
-
-            if (GUILayout.Button(ConfigOptionsButton, buttonStyle, ConfigOptionsButtonOptions))
+            if (isRenaming && ObjectToRename != null && ObjectToRename == Config)
             {
-                ShowOptionsMenu(Config);
+                if (GUILayout.Button(checkIcon, buttonStyle, ConfigOptionsButtonOptions))
+                {
+                    FinishRenaming = true;
+                }
             }
+            else
+            {
+                if (GUILayout.Button(ConfigOptionsButton, buttonStyle, ConfigOptionsButtonOptions))
+                {
+                    ShowOptionsMenu(Config);
+                }
+            }
+            
         }
 
         private void ShowOptionsMenu<T>(T Config) where T : ScriptableObject
@@ -598,7 +609,7 @@ namespace ScriptableObjectManager
                         GUIContent propertyContent = new GUIContent(fileName, fileName);
                         
                         
-                        Rect elementRect = GUILayoutUtility.GetRect(120, 120, 18, 18, GUILayout.Width(120));
+                        Rect elementRect = GUILayoutUtility.GetRect(120, 18, GUILayout.Width(120));
                         
                         if (isRenaming && ObjectToRename != null && ObjectToRename == Config)
                         {
@@ -609,28 +620,21 @@ namespace ScriptableObjectManager
 
                             Event e = Event.current;
 
+                            // textfield + confirm button (for mouse event it must also contain the button area)
+                            elementRect.width = 145;
                             if (isRenaming && e.type == EventType.MouseDown && !elementRect.Contains(e.mousePosition))
                             {
                                 isRenaming = false;
                                 GUI.FocusControl(null);
-                                e.Use(); // Olayý tüketiyoruz
+                                e.Use();
                             }
 
-                            if (GUILayout.Button(checkButton, buttonStyle, ConfigOptionsButtonOptions))
+                            if (FinishRenaming || Event.current.keyCode == KeyCode.Return || Event.current.keyCode == KeyCode.KeypadEnter)
                             {
                                 AssetDatabase.RenameAsset(filePath, renameText);
                                 AssetDatabase.SaveAssets();
                                 isRenaming = false;
-                                renameText = "";
-                                ObjectToRename = null;
-                                GUI.FocusControl(null);
-                            }
-
-                            if (Event.current.keyCode == KeyCode.Return || Event.current.keyCode == KeyCode.KeypadEnter)
-                            {
-                                AssetDatabase.RenameAsset(filePath, renameText);
-                                AssetDatabase.SaveAssets();
-                                isRenaming = false;
+                                FinishRenaming = false;
                                 renameText = "";
                                 ObjectToRename = null;
                                 GUI.FocusControl(null);
