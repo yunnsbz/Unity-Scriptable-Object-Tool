@@ -568,8 +568,10 @@ namespace ScriptableObjectManager
             if (ConfigOptionsIcon != null)
             {
                 buttonStyle.padding = new RectOffset(2, 2, 2, 2);
+                buttonStyle.margin = new RectOffset(0, 0, 0, 0);
                 buttonStyle.imagePosition = ImagePosition.ImageOnly;
             }
+
             if (isRenaming && ObjectToRename != null && ObjectToRename == Config)
             {
                 if (GUILayout.Button(checkIcon, buttonStyle, ConfigOptionsButtonOptions))
@@ -584,7 +586,6 @@ namespace ScriptableObjectManager
                     ShowOptionsMenu(Config);
                 }
             }
-            
         }
 
         private void ShowOptionsMenu<T>(T Config) where T : ScriptableObject
