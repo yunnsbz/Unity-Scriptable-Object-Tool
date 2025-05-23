@@ -26,7 +26,7 @@ A custom Unity Editor tool designed to streamline the process of viewing and edi
 6. Click to the filters button (top right) and choose your scriptable object types.
 
 ## Other Installations
-1. clone this repository and move the Assets/Editor/Editor Windows folder as-is, but make sure to avoid overwriting existing scripts if you've customized them.
+1. clone this repository and move the ``Assets/Editor/Editor Windows`` folder as-is, but make sure to avoid overwriting existing scripts if you've customized them.
 2. For this version, your ScriptableObjects must be placed in the ``Assets/Resources/ScriptableObjects/`` folder (the program will automatically fetch all ScriptableObjects from this directory).
 3. In Unity, go to the Window menu and find the new "Game Config Editor" window.
 4. Click to the filters button (top right) and choose your scriptable object types.
@@ -54,6 +54,3 @@ In the screenshot below, you can see two `TestSO` ScriptableObjects (`TestConfig
 
 ## Contributing
 Feel free to fork this repository and submit pull requests with improvements or bug fixes. If you encounter any issues, please open an issue on GitHub.
-
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
