@@ -43,6 +43,11 @@ namespace ScriptableObjectManager
         private List<Type> selectedTypes = new(); // Tracks which ScriptableObject types are currently selected for display
         private List<Type> availableTypes = new(); // Holds all unique ScriptableObject types found in the project
 
+        // rename operation:
+        bool isRenaming = false;
+        ScriptableObject ObjectToRename = null;
+        string renameText = "";
+
         // textures:
         private Texture2D spaceIcon;
         private Texture2D orientationIcon;
@@ -50,19 +55,21 @@ namespace ScriptableObjectManager
         private Texture2D addConfigIcon;
         private Texture2D refreshIcon;
         private Texture2D filtersIcon;
+        private Texture2D checkIcon;
 
         // Buttons Styles:
         GUIContent spaceButton;
         GUIContent orientationButton;
         GUIContent refreshButton;
         GUIContent filtersButton;
+        GUIContent checkButton;
         // create config button styles:
         GUIContent AddConfigButton;
         GUILayoutOption[] AddConfigButtonOptions;
         GUIStyle buttonStyle;
         // delete config button styles:
         GUIContent ConfigOptionsButton;
-        GUILayoutOption[] ConfigOoptionsButtonOptions;
+        GUILayoutOption[] ConfigOptionsButtonOptions;
 
         // label styles:
         GUIStyle centeredLabelStyle;
@@ -144,6 +151,15 @@ namespace ScriptableObjectManager
             {
                 filtersButton = new GUIContent("filters", "filters");
             }
+            // GUI content for check button
+            if (checkIcon != null)
+            {
+                checkButton = new GUIContent(checkIcon, "check");
+            }
+            else
+            {
+                checkButton = new GUIContent("ok", "check");
+            }
 
             // 'create config' button styles
             if (addConfigIcon != null)
@@ -157,16 +173,16 @@ namespace ScriptableObjectManager
                 AddConfigButtonOptions = new GUILayoutOption[] { GUILayout.Width(65) };
             }
 
-            // 'delete config' button styles
+            // 'Config Options' button styles
             if (ConfigOptionsIcon != null)
             {
-                ConfigOptionsButton = new GUIContent(ConfigOptionsIcon, "delete config permanently");
-                ConfigOoptionsButtonOptions = new GUILayoutOption[] { GUILayout.Height(20), GUILayout.Width(20) };
+                ConfigOptionsButton = new GUIContent(ConfigOptionsIcon, "Options");
+                ConfigOptionsButtonOptions = new GUILayoutOption[] { GUILayout.Height(20), GUILayout.Width(20) };
             }
             else
             {
-                ConfigOptionsButton = new GUIContent("del", "delete config permanently");
-                ConfigOoptionsButtonOptions = new GUILayoutOption[] { GUILayout.Width(30) };
+                ConfigOptionsButton = new GUIContent("opt", "Options");
+                ConfigOptionsButtonOptions = new GUILayoutOption[] { GUILayout.Width(30) };
             }
         }
 
@@ -334,6 +350,7 @@ namespace ScriptableObjectManager
             addConfigIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/add file.png");
             refreshIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/refresh.png");
             filtersIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/filter.png");
+            checkIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/Editor Windows/Icons/check.png");
 
             if (spaceIcon == null)
             {
@@ -358,6 +375,10 @@ namespace ScriptableObjectManager
             if (filtersIcon == null)
             {
                 Debug.LogError("filters Icon not found in: Assets/Editor/Editor Windows/Icons/filter.png");
+            }
+            if (checkIcon == null)
+            {
+                Debug.LogError("check Icon not found in: Assets/Editor/Editor Windows/Icons/check.png");
             }
         }
 
@@ -504,7 +525,7 @@ namespace ScriptableObjectManager
                 buttonStyle.imagePosition = ImagePosition.ImageOnly;
             }
 
-            if (GUILayout.Button(ConfigOptionsButton, buttonStyle, ConfigOoptionsButtonOptions))
+            if (GUILayout.Button(ConfigOptionsButton, buttonStyle, ConfigOptionsButtonOptions))
             {
                 ShowOptionsMenu(Config);
             }
@@ -515,7 +536,7 @@ namespace ScriptableObjectManager
             GenericMenu menu = new GenericMenu();
 
             menu.AddItem(new GUIContent("Delete Config"), false, () => DeleteConfig(Config));
-            
+            menu.AddItem(new GUIContent("Rename Config"), false, () => { isRenaming = true; ObjectToRename = Config; renameText = ""; });
             menu.AddSeparator("");
             menu.AddItem(new GUIContent("Show In Project Folder"), false, () => ShowInProjectFolders(Config));
             menu.ShowAsContext();
@@ -575,8 +596,60 @@ namespace ScriptableObjectManager
 
                         // Display the file name for the asset
                         GUIContent propertyContent = new GUIContent(fileName, fileName);
-                        EditorGUILayout.LabelField(propertyContent, EditorStyles.miniBoldLabel, GUILayout.Width(120));
+                        
+                        
+                        Rect elementRect = GUILayoutUtility.GetRect(120, 120, 18, 18, GUILayout.Width(120));
+                        
+                        if (isRenaming && ObjectToRename != null && ObjectToRename == Config)
+                        {
+                            GUI.SetNextControlName("RenameField");
 
+                            // Display a text field for renaming the asset.if renameText is empty, show the file name until the user types something
+                            renameText = EditorGUI.TextField(elementRect, renameText == "" ? fileName : renameText);
+
+                            Event e = Event.current;
+
+                            if (isRenaming && e.type == EventType.MouseDown && !elementRect.Contains(e.mousePosition))
+                            {
+                                isRenaming = false;
+                                GUI.FocusControl(null);
+                                e.Use(); // Olayý tüketiyoruz
+                            }
+
+                            if (GUILayout.Button(checkButton, buttonStyle, ConfigOptionsButtonOptions))
+                            {
+                                AssetDatabase.RenameAsset(filePath, renameText);
+                                AssetDatabase.SaveAssets();
+                                isRenaming = false;
+                                renameText = "";
+                                ObjectToRename = null;
+                                GUI.FocusControl(null);
+                            }
+
+                            if (Event.current.keyCode == KeyCode.Return || Event.current.keyCode == KeyCode.KeypadEnter)
+                            {
+                                AssetDatabase.RenameAsset(filePath, renameText);
+                                AssetDatabase.SaveAssets();
+                                isRenaming = false;
+                                renameText = "";
+                                ObjectToRename = null;
+                                GUI.FocusControl(null);
+                            }
+                            else if (Event.current.keyCode == KeyCode.Escape)
+                            {
+                                renameText = "";
+                                isRenaming = false;
+                                ObjectToRename = null;
+                                GUI.FocusControl(null);
+                            }
+
+                            EditorGUI.FocusTextInControl("RenameField");
+                        }
+                        else
+                        {
+                            EditorGUI.LabelField(elementRect, propertyContent,  EditorStyles.miniBoldLabel);
+                        }
+                        
                         // Display a delete button for the asset
                         OptionsButton(Config);
                         GUILayout.Space(3);
@@ -651,6 +724,14 @@ namespace ScriptableObjectManager
             }
 
             return maxHeight;
+        }
+
+        void OnLostFocus()
+        {
+            isRenaming = false;
+            ObjectToRename = null;
+            renameText = "";
+            GUI.FocusControl(null);
         }
 
     }
