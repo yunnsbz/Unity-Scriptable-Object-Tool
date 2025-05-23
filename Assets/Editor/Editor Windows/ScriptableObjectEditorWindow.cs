@@ -512,6 +512,8 @@ public class ScriptableObjectEditorWindow : EditorWindow
         GenericMenu menu = new GenericMenu();
 
         menu.AddItem(new GUIContent("Delete Config"), false, () => DeleteConfig(Config));
+        menu.AddSeparator("");
+        menu.AddItem(new GUIContent("Show In Project Folder"), false, () => ShowInProjectFolders(Config));
         
         menu.ShowAsContext();
     }
@@ -568,12 +570,12 @@ public class ScriptableObjectEditorWindow : EditorWindow
                     string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
                     if (fileName == "") throw new System.Exception();
 
-                    // Display a delete button for the asset
-                    DeleteButton(Config);
-
                     // Display the file name for the asset
                     GUIContent propertyContent = new GUIContent(fileName, fileName);
                     EditorGUILayout.LabelField(propertyContent, EditorStyles.miniBoldLabel, GUILayout.Width(120));
+
+                    // Display a delete button for the asset
+                    OptionsButton(Config);
 
                     SerializedObject serializedObject = new(Config);
                     SerializedProperty property = serializedObject.GetIterator();
@@ -619,6 +621,13 @@ public class ScriptableObjectEditorWindow : EditorWindow
             AssetDatabase.Refresh();
             GroupScriptableObjectsByType(); // Refresh the list after deletion
         }
+    }
+
+    private void ShowInProjectFolders<T>(T Config) where T : ScriptableObject
+    {
+        string path = AssetDatabase.GetAssetPath(Config);
+        EditorUtility.FocusProjectWindow();
+        Selection.activeObject = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
     }
 
     public static float CalculatePropertyHeight<T>(List<T> configs, SerializedProperty property) where T : ScriptableObject
