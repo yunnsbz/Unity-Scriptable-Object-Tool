@@ -668,7 +668,7 @@ public class ConfigTypeSelectionPopup : PopupWindowContent
 
     public override Vector2 GetWindowSize()
     {
-        return new Vector2(200, 500); // Define the dimensions of the popup window
+        return new Vector2(200, 400); // Define the dimensions of the popup window
     }
 
     public override void OnGUI(Rect rect)
