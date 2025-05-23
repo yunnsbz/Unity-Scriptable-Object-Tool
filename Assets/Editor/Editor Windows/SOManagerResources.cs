@@ -31,31 +31,31 @@ namespace ScriptableObjectManager
 
             if (spaceIcon == null)
             {
-                Debug.LogError("space Icon not found in: Assets/Editor/Editor Windows/Icons/space.png");
+                Debug.LogError("[ ScriptableObjectManager ] space Icon not found in: Assets/Editor/Editor Windows/Icons/space.png");
             }
             if (orientationIcon == null)
             {
-                Debug.LogError("orientation Icon not found in: Assets/Editor/Editor Windows/Icons/orientation.png");
+                Debug.LogError("[ ScriptableObjectManager ] orientation Icon not found in: Assets/Editor/Editor Windows/Icons/orientation.png");
             }
             if (ConfigOptionsIcon == null)
             {
-                Debug.LogError("ConfigOptions Icon not found in: Assets/Editor/Editor Windows/Icons/options.png");
+                Debug.LogError("[ ScriptableObjectManager ] ConfigOptions Icon not found in: Assets/Editor/Editor Windows/Icons/options.png");
             }
             if (addConfigIcon == null)
             {
-                Debug.LogError("addConfig Icon not found in: Assets/Editor/Editor Windows/Icons/add file.png");
+                Debug.LogError("[ ScriptableObjectManager ] addConfig Icon not found in: Assets/Editor/Editor Windows/Icons/add file.png");
             }
             if (refreshIcon == null)
             {
-                Debug.LogError("refresh Icon not found in: Assets/Editor/Editor Windows/Icons/refresh.png");
+                Debug.LogError("[ ScriptableObjectManager ] refresh Icon not found in: Assets/Editor/Editor Windows/Icons/refresh.png");
             }
             if (filtersIcon == null)
             {
-                Debug.LogError("filters Icon not found in: Assets/Editor/Editor Windows/Icons/filter.png");
+                Debug.LogError("[ ScriptableObjectManager ] filters Icon not found in: Assets/Editor/Editor Windows/Icons/filter.png");
             }
             if (checkIcon == null)
             {
-                Debug.LogError("check Icon not found in: Assets/Editor/Editor Windows/Icons/check.png");
+                Debug.LogError("[ ScriptableObjectManager ] check Icon not found in: Assets/Editor/Editor Windows/Icons/check.png");
             }
         }
     }
